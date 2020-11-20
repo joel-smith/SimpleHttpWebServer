@@ -72,7 +72,6 @@ namespace A06_WebServer
 {
     class Run
     {
-<<<<<<< HEAD
         static int Main(string[] args)
         {
             string path = null;
@@ -147,36 +146,11 @@ namespace A06_WebServer
             //    check return
             //    assign value to variable
             ////initialize server
-            ///
-            return 0;
-        }
-=======
-        public Logger.HttpServerLogger serverLog;
-
-
-        static void Main(string[] args)
-        {
+            ///            
+            
             //initialize logger
             Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/serverlog.txt");
            // serverLog.Init("C:/temp/serverlog.txt"); //make this definable?
->>>>>>> cce2fa512bbd2d93288f635b9355be3666a4e0ae
-
-        //Grab each argument from the command line, remove the 
-        static int parseArg(string argument)
-        {
-            if (argument.Contains("webroot"))
-            {
-                return 1;
-            }
-            else if (argument.Contains("webIP"))
-            {
-                return 2;
-            }
-            else if (argument.Contains("webPort"))
-            {
-                return 3;
-            }
             return 0;
         }
-    }
 }
