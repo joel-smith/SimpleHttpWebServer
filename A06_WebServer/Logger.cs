@@ -40,7 +40,7 @@ namespace A06_WebServer
             public bool logValid = false; //has the log file been verified
             public string filePath; //where is the log
 
-            public void Init(string logPath)
+            public HttpServerLogger(string logPath)
             {
 
                 //lock for safety

@@ -70,11 +70,14 @@ namespace A06_WebServer
 {
     class Run
     {
+        public Logger.HttpServerLogger serverLog;
+
+
         static void Main(string[] args)
         {
             //initialize logger
-            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger();
-            serverLog.Init("C:/temp/serverlog.txt");
+            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/serverlog.txt");
+           // serverLog.Init("C:/temp/serverlog.txt"); //make this definable?
 
             //initialize server
         }
