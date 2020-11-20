@@ -9,6 +9,8 @@ Command Line Arguments:
 –webPort : which will be set to the Port number the server will be listening on
 
 example: myOwnWebServer –webRoot=C:\localWebSite –webIP=192.168.100.23 –webPort=5300
+
+Must be able to handle these parametes in any order
  */
 
 /*
@@ -70,10 +72,100 @@ namespace A06_WebServer
 {
     class Run
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
+            string path = null;
+            string[] result = null;
+            int port = 0;
+            string ipAddress = null;
 
-            //initialize server
+            if (args.Length == 0)
+            {
+                Console.WriteLine("You need to enter things homie.");
+                return 1;
+            }
+            
+            //We're going to step through each of the command line arguments received.
+            //We're going to check which command it contains, split it grabbing the instruction
+            //and throw the instruction into the appropriate variable. This approach will allow
+            //us to handle user input of the instructions in any order.
+            switch (parseArg(args[0]))
+            {
+                case 1:
+                    result = args[0].Split('=');
+                    path = result[1];
+                    break;
+                case 2:
+                    result = args[0].Split('=');
+                    ipAddress = result[1];
+                    break;
+                case 3:
+                    result = args[0].Split('=');
+                    port = int.Parse(result[1]);
+                    break;
+
+            }
+            switch (parseArg(args[1]))
+            {
+                case 1:
+                    result = args[1].Split('=');
+                    path = result[1];
+                    break;
+                case 2:
+                    result = args[1].Split('=');
+                    ipAddress = result[1];
+                    break;
+                case 3:
+                    result = args[1].Split('=');
+                    port = int.Parse(result[1]);
+                    break;
+
+            }
+            switch (parseArg(args[2]))
+            {
+                case 1:
+                    result = args[2].Split('=');
+                    path = result[1];
+                    break;
+                case 2:
+                    result = args[2].Split('=');
+                    ipAddress = result[1];
+                    break;
+                case 3:
+                    result = args[2].Split('=');
+                    port = int.Parse(result[1]);
+                    break;
+
+            }
+
+            Console.WriteLine($"The port is {port}");
+            Console.WriteLine($"The path is {path}");
+            Console.WriteLine($"The Ip Adress is {ipAddress}");
+
+            //pass parameter to parseArg
+            //    check return
+            //    assign value to variable
+            ////initialize server
+            ///
+            return 0;
+        }
+
+        //Grab each argument from the command line, remove the 
+        static int parseArg(string argument)
+        {
+            if (argument.Contains("webroot"))
+            {
+                return 1;
+            }
+            else if (argument.Contains("webIP"))
+            {
+                return 2;
+            }
+            else if (argument.Contains("webPort"))
+            {
+                return 3;
+            }
+            return 0;
         }
     }
 }
