@@ -84,7 +84,7 @@ namespace A06_WebServer
                 Console.WriteLine("You need to enter things homie.");
                 return 1;
             }
-            
+
             //We're going to step through each of the command line arguments received.
             //We're going to check which command it contains, split it grabbing the instruction
             //and throw the instruction into the appropriate variable. This approach will allow
@@ -147,10 +147,29 @@ namespace A06_WebServer
             //    assign value to variable
             ////initialize server
             ///            
-            
+
             //initialize logger
             Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/serverlog.txt");
-           // serverLog.Init("C:/temp/serverlog.txt"); //make this definable?
+            // serverLog.Init("C:/temp/serverlog.txt"); //make this definable?
             return 0;
         }
+
+        //Grab each argument from the command line, remove the 
+        static int parseArg(string argument)
+        {
+            if (argument.Contains("webroot"))
+            {
+                return 1;
+            }
+            else if (argument.Contains("webIP"))
+            {
+                return 2;
+            }
+            else if (argument.Contains("webPort"))
+            {
+                return 3;
+            }
+            return 0;
+        }
+    }
 }
