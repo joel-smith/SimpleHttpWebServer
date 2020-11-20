@@ -22,6 +22,7 @@ namespace A06_WebServer
         /// </summary>
         HttpServer()
         {
+            
             serverLog = new Logger.HttpServerLogger("C:/temp/serverlog.txt");
         }
 
@@ -51,6 +52,21 @@ namespace A06_WebServer
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SendRequest()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Close()
+        {
+
+        }
 
     }
 }
