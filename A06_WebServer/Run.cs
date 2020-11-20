@@ -72,6 +72,9 @@ namespace A06_WebServer
     {
         static void Main(string[] args)
         {
+            //initialize logger
+            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger();
+            serverLog.Init("C:/temp/serverlog.txt");
 
             //initialize server
         }
