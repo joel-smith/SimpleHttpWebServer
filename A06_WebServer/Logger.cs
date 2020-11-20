@@ -40,7 +40,7 @@ namespace A06_WebServer
             public bool logValid = false; //has the log file been verified
             public string filePath; //where is the log
 
-            public void Init(string logPath)
+            public HttpServerLogger(string logPath)
             {
 
                 //lock for safety
@@ -53,11 +53,14 @@ namespace A06_WebServer
                             using (FileStream fs = File.Create(logPath))
                             {
                                 //need to add datetime stamp
-                                byte[] info = new UTF8Encoding(true).GetBytes("Initialized HTTP Server Log");
+                                string firstEntry = DateTime.Now.ToString() + " : Initialized HTTP Server Log";
+
+                                byte[] info = new UTF8Encoding(true).GetBytes(firstEntry);
                                 // Add some info to the file.
                                 fs.Write(info, 0, info.Length);
                                 this.logValid = true;
                             }
+                            filePath = logPath; //store log data in class
                         }
                         //cannot write to text if we can't open it, not supposed to write to console?
                         //maybe we can here
@@ -86,7 +89,7 @@ namespace A06_WebServer
                     {
                         using (StreamWriter sw = new StreamWriter(filePath, true))
                         {
-                            sw.WriteLine(message);
+                            sw.WriteLine(DateTime.Now.ToString() + " : " + message);
                             sw.Close();
                         }
                     }
