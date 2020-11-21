@@ -67,6 +67,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace A06_WebServer
 {
@@ -137,7 +138,8 @@ namespace A06_WebServer
                     break;
 
             }
-
+            //Format our user inputted string into an IPAddress
+            IPAddress address = IPAddress.Parse(ipAddress);
 
 
             //Debugging purposes
@@ -149,6 +151,12 @@ namespace A06_WebServer
             Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log"); //Changed the log name to meet Sean specs
             // serverLog.Init("C:/temp/serverlog.txt"); //make this definable?
             serverLog.Log($"[SERVER STARTED] {args[0]} {args[1]} {args[2]}"); //Log the server startup parameters? Not sure if this is the right call
+
+            
+            //Call to begin server process, passing in our ipaddress and port number
+            HttpServer.Init(address, port);
+            
+            
             return 0;
         }
 
