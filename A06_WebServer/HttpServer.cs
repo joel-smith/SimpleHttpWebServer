@@ -49,7 +49,16 @@ namespace A06_WebServer
         /// <param name="Request"></param>
         public void ParseRequest(string Request)
         {
+            //plain text(specifically the .txt extension)
+            //HTML files(and their various extensions)
+            //JPG images(and their various extensions)
+            //GIF
 
+            //make our own HttpError object/class maybe?
+            //maybe even make this function be: 
+            //public HttpError ParseRequest(string Request)
+            //and return void if is successful?
+            //maybe need HttpResponse class? HttpError can be a subclass?
         }
 
         /// <summary>
@@ -57,7 +66,7 @@ namespace A06_WebServer
         /// </summary>
         public void SendRequest()
         {
-
+            //request object/class needed maybe?
         }
 
         /// <summary>
@@ -65,7 +74,7 @@ namespace A06_WebServer
         /// </summary>
         public void Close()
         {
-
+            serverLog.Log("Closing server");
         }
 
     }
