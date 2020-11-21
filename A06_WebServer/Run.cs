@@ -89,7 +89,7 @@ namespace A06_WebServer
             //We're going to check which command it contains, split it grabbing the instruction
             //and throw the instruction into the appropriate variable. This approach will allow
             //us to handle user input of the instructions in any order.
-            switch (parseArg(args[0]))
+            switch (ParseArg(args[0]))
             {
                 case 1:
                     result = args[0].Split('=');
@@ -105,7 +105,7 @@ namespace A06_WebServer
                     break;
 
             }
-            switch (parseArg(args[1]))
+            switch (ParseArg(args[1]))
             {
                 case 1:
                     result = args[1].Split('=');
@@ -121,7 +121,7 @@ namespace A06_WebServer
                     break;
 
             }
-            switch (parseArg(args[2]))
+            switch (ParseArg(args[2]))
             {
                 case 1:
                     result = args[2].Split('=');
@@ -138,24 +138,31 @@ namespace A06_WebServer
 
             }
 
+
+
+            //Debugging purposes
             Console.WriteLine($"The port is {port}");
             Console.WriteLine($"The path is {path}");
             Console.WriteLine($"The Ip Adress is {ipAddress}");
 
-            //pass parameter to parseArg
-            //    check return
-            //    assign value to variable
-            ////initialize server
-            ///            
-
             //initialize logger
-            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/serverlog.txt");
+            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log"); //Changed the log name to meet Sean specs
             // serverLog.Init("C:/temp/serverlog.txt"); //make this definable?
+            serverLog.Log($"[SERVER STARTED] {args[0]} {args[1]} {args[2]}"); //Log the server startup parameters? Not sure if this is the right call
             return 0;
         }
 
-        //Grab each argument from the command line, remove the 
-        static int parseArg(string argument)
+
+
+        /*
+         * Method:          ParseArg
+         * Description:     Takes in a string argument, checks against 1 of 3 commands
+         *                  and returns an int based off which condition it fulfils
+         * Parameter:       string argument - string representing a command line argument
+         * Returns:         int - 1 for webroot, 2 for webIP, 3 for webPort
+         * 
+         */
+        static int ParseArg(string argument)
         {
             if (argument.Contains("webroot"))
             {

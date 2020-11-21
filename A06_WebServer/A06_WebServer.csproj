@@ -7,7 +7,7 @@
     <ProjectGuid>{E9E37150-B95D-4BD1-AAB8-92099CD8E8EC}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>A06_WebServer</RootNamespace>
-    <AssemblyName>A06_WebServer</AssemblyName>
+    <AssemblyName>myOwnWebServer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
