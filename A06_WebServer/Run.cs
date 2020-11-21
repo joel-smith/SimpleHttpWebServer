@@ -137,15 +137,18 @@ namespace A06_WebServer
                     break;
 
             }
+
+
+
             //Debugging purposes
             Console.WriteLine($"The port is {port}");
             Console.WriteLine($"The path is {path}");
             Console.WriteLine($"The Ip Adress is {ipAddress}");
 
             //initialize logger
-            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/serverlog.txt");
+            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log"); //Changed the log name to meet Sean specs
             // serverLog.Init("C:/temp/serverlog.txt"); //make this definable?
-            
+            serverLog.Log($"[SERVER STARTED] {args[0]} {args[1]} {args[2]}"); //Log the server startup parameters? Not sure if this is the right call
             return 0;
         }
 

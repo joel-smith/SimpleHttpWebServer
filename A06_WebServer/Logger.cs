@@ -53,7 +53,7 @@ namespace A06_WebServer
                             using (FileStream fs = File.Create(logPath))
                             {
                                 //need to add datetime stamp
-                                string firstEntry = DateTime.Now.ToString() + " : Initialized HTTP Server Log";
+                                string firstEntry = DateTime.Now.ToString() + " : Initialized HTTP Server Log\n";
 
                                 byte[] info = new UTF8Encoding(true).GetBytes(firstEntry);
                                 // Add some info to the file.
@@ -71,6 +71,7 @@ namespace A06_WebServer
                     }
                     else
                     {
+                        filePath = logPath;
                         this.logValid = true;
                     }
                 }
