@@ -79,6 +79,7 @@ namespace A06_WebServer
             string[] result = null;
             int port = 0;
             string ipAddress = null;
+            HttpServer server = new HttpServer();
 
             if (args.Length == 0)
             {
@@ -154,7 +155,7 @@ namespace A06_WebServer
 
             
             //Call to begin server process, passing in our ipaddress and port number
-            HttpServer.Init(address, port);
+            server.Init(address, port);
             
             
             return 0;

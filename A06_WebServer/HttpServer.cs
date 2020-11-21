@@ -12,10 +12,10 @@ namespace A06_WebServer
     /// <summary>
     /// to be used for functions related to webserver
     /// </summary>
-    class HttpServer
+    public class HttpServer
     {
         //Might be able to receie this? was encountering issues without it set.
-        public Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log");
+        Logger.HttpServerLogger serverLog;// = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log");
 
         private static TcpListener serverListener;
 
@@ -28,7 +28,7 @@ namespace A06_WebServer
         /// <summary>
         /// constructor for HttpServer class, currently takes one input the log file
         /// </summary>
-        HttpServer()
+        public HttpServer()
         {
             
             serverLog = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log");
@@ -37,7 +37,7 @@ namespace A06_WebServer
         /// <summary>
         /// start up server, listen?
         /// </summary>
-        public static void Init(IPAddress address, int port)
+        public void Init(IPAddress address, int port)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace A06_WebServer
          * Listen for the browser request, ensure it meets our needs, pass to ParseRequest for heavy lifting
          * 
          */
-        private static void GetRequest()
+        private void GetRequest()
         {
             int index = 0;
             string request = null;
@@ -83,8 +83,8 @@ namespace A06_WebServer
                     //Check the first 3 characters of our request. If not get, send back response, log, shut down.
                     if (buffer.Substring(0,3) != "GET")
                     {
-                        //serverLog.Log("405"); //Status 405 Method Not Allowed
-                        //Send back 405 status code
+                        serverLog.Log("405"); //Status 405 Method Not Allowed
+                        //Send back 405 status code somehow
                         clientSocket.Close();
                         return; //Maybe find a different way to do this? break?
                     }
@@ -95,6 +95,9 @@ namespace A06_WebServer
 
                     //Will grab a substring from beginning to just before position of the HTTP version
                     request = buffer.Substring(0, (index - 1));
+
+                    //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
+                    ParseRequest(request);
                 }
             }
         }
@@ -103,7 +106,7 @@ namespace A06_WebServer
         /// basic function to parse the request on the http server
         /// </summary>
         /// <param name="Request"></param>
-        public void ParseRequest(string Request)
+        public static void ParseRequest(string Request)
         {
             //plain text(specifically the .txt extension)
             //HTML files(and their various extensions)
