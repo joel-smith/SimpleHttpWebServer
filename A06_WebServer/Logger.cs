@@ -91,7 +91,7 @@ namespace A06_WebServer
                         using (StreamWriter sw = new StreamWriter(filePath, true))
                         {
                             //Uses custom date formatting to meet specs
-                            sw.WriteLine(DateTime.Now.ToString("yyyy-M-d H:mm:s") + " : " + message);
+                            sw.WriteLine(DateTime.Now.ToString("yyyy-M-d H:mm:s ") + message);
                             sw.Close();
                         }
                     }
