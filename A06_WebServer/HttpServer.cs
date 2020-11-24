@@ -51,7 +51,7 @@ namespace A06_WebServer
             catch (Exception e)
             {
                 //Commented out temporarily. Issues with object instatiation?
-                //serverLog.Log("Exception occured initializing TcpListener for Server : " + e.ToString());
+                serverLog.Log("Exception occured initializing TcpListener for Server : " + e.ToString());
             }
 
         }
