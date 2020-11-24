@@ -14,8 +14,7 @@ namespace A06_WebServer
     /// </summary>
     public class HttpServer
     {
-        //Might be able to receie this? was encountering issues without it set.
-        Logger.HttpServerLogger serverLog;// = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log");
+        Logger.HttpServerLogger serverLog;
 
         private static TcpListener serverListener;
 
@@ -50,7 +49,7 @@ namespace A06_WebServer
             }
             catch (Exception e)
             {
-                //Commented out temporarily. Issues with object instatiation?
+                //Should log our exception that was thrown
                 serverLog.Log("Exception occured initializing TcpListener for Server : " + e.ToString());
             }
 
@@ -65,6 +64,7 @@ namespace A06_WebServer
             int index = 0;
             string request = null;
             string version = null;
+            string verb = null;
 
             
             while (true)
@@ -80,10 +80,13 @@ namespace A06_WebServer
                     //Translate the received bytes into the HTTP request
                     string buffer = Encoding.ASCII.GetString(bytes);
 
-                    //Check the first 3 characters of our request. If not get, send back response, log, shut down.
-                    if (buffer.Substring(0,3) != "GET")
+                    //Grab the HTTP verb from the request and store it
+                    verb = buffer.Substring(0, 3);
+
+                    //Check the HTTP verb. If not get, send back response, log, shut down.
+                    if (verb != "GET")
                     {
-                        serverLog.Log("405"); //Status 405 Method Not Allowed
+                        serverLog.Log("405: Method Not Allowed"); //Status 405 Method Not Allowed
                         //Send back 405 status code somehow
                         clientSocket.Close();
                         return; //Maybe find a different way to do this? break?
@@ -95,6 +98,9 @@ namespace A06_WebServer
 
                     //Will grab a substring from beginning to just before position of the HTTP version
                     request = buffer.Substring(0, (index - 1));
+
+                    //Log the http verb and the requested resource
+                    serverLog.Log($"HTTP Verb {verb} Resourse: {request}");
 
                     //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
                     ParseRequest(request);
