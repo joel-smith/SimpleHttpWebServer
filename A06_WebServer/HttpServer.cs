@@ -64,7 +64,7 @@ namespace A06_WebServer
         private void GetRequest()
         {
             int index = 0;
-            string request = null;
+            string target = null;
             string version = null;
             string verb = null;
             int statusCode = 0;
@@ -101,13 +101,17 @@ namespace A06_WebServer
                     version = buffer.Substring(index, 8);
 
                     //Will grab a substring from beginning to just before position of the HTTP version
-                    request = buffer.Substring(0, (index - 1));
+                    target = buffer.Substring(0, (index - 1));
 
                     //Log the http verb and the requested resource
-                    serverLog.Log($"HTTP Verb {verb} Resourse: {request}");
+                    serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
+
+
+
+                    Request browserRequest = new Request(target, "localhost");//May need to adjust this instead of "localhost" being hardcoded.
 
                     //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
-                    ParseRequest(request);
+                    ParseRequest(browserRequest);
                 }
             }
         }
@@ -117,7 +121,7 @@ namespace A06_WebServer
         /// this function can return a HttpRequest object
         /// </summary>
         /// <param name="Request"></param>
-        public static void ParseRequest(string Request)
+        public static void ParseRequest(Request Request)
         {
             //plain text(specifically the .txt extension)
             //HTML files(and their various extensions)
