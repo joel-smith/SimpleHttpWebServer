@@ -69,7 +69,8 @@ namespace A06_WebServer
     }
 
     /// <summary>
-    /// generic Response class 
+    /// generic Response class, built to handle headers of 
+    /// Date, Server, Content-Type, Content-Length
     /// </summary>
     public class Response : HttpMessage 
     {
@@ -80,10 +81,15 @@ namespace A06_WebServer
             return startLine.ToString();
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>string with formatted headers</returns>
         public override string Headers()
         {
-            throw new NotImplementedException();
+            string outputString = "Date: " + Date.ToString() + "\nServerL: " + Server + "\n Content-Type: " + ContentType.ToString() + "\n Content-Length: " + ContentLength;
+
+            return outputString;
         }
 
         public ResponseStartLine startLine;
