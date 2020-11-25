@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HttpResponse.cs" />
+    <Compile Include="HttpMessage.cs" />
     <Compile Include="HttpServer.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Run.cs" />
