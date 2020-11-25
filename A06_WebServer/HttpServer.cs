@@ -110,6 +110,7 @@ namespace A06_WebServer
 
         /// <summary>
         /// basic function to parse the request on the http server
+        /// this function can return a HttpRequest object
         /// </summary>
         /// <param name="Request"></param>
         public static void ParseRequest(string Request)

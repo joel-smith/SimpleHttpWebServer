@@ -6,11 +6,22 @@ using System.Threading.Tasks;
 
 namespace A06_WebServer
 {
-    class HttpResponse 
+    public class HttpMessage
+    {
+        public string Body;
+    }
+    
+    public class Request : HttpMessage
+    {
+
+    }
+
+    
+    public class Response : HttpMessage 
     {
         //status line
         //example: "HTTP/1.1 404 Not Found"
-        public HttpStatusLine StatusLine;
+        
 
         //headers, required content-type, content-length, server, date
         public HttpContentType ContentType;
@@ -18,12 +29,12 @@ namespace A06_WebServer
         public DateTime Date;
 
         //body
-        public string Body;
+        
 
 
         //constructor to be used 
-        //need to set body after
-        public HttpResponse(HttpContentType contentType, int contentLength)
+        //need to set body after in the server
+        public Response(HttpContentType contentType, int contentLength)
         {
             ContentType = contentType;
             ContentLength = contentLength;
@@ -36,9 +47,9 @@ namespace A06_WebServer
     /// <summary>
     /// struct to be used within HttpResponse 
     /// </summary>
-    public struct HttpStatusLine
+    public struct HttpStartLine
     {
-        public HttpStatusLine(double version, int code, string text)
+        public HttpStartLine(double version, int code, string text)
         {
             Version = version;
             Code = code;
