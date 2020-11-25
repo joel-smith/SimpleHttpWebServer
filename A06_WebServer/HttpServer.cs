@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -19,9 +20,10 @@ namespace A06_WebServer
         private static TcpListener serverListener;
 
         //I think these make more sense as coming in from run.cs input
-        private int port = 5050; //Has to be configurable by user input
-        private IPAddress ipAddress; //Has to be configurable by user
+        private readonly int port; // = 5050; //Has to be configurable by user input
+        private readonly IPAddress ipAddress; //Has to be configurable by user
 
+        Socket clientSocket;
 
 
         /// <summary>
@@ -65,11 +67,12 @@ namespace A06_WebServer
             string request = null;
             string version = null;
             string verb = null;
+            int statusCode = 0;
 
             
             while (true)
             {
-                Socket clientSocket = serverListener.AcceptSocket();
+                clientSocket = serverListener.AcceptSocket();
 
                 if (clientSocket.Connected)
                 {
@@ -86,11 +89,12 @@ namespace A06_WebServer
                     //Check the HTTP verb. If not get, send back response, log, shut down.
                     if (verb != "GET")
                     {
-                        serverLog.Log("405: Method Not Allowed"); //Status 405 Method Not Allowed
-                        //Send back 405 status code somehow
-                        clientSocket.Close();
+                        statusCode = 405; //405: Method not allowed
+                        SendResponse(statusCode, null);
+                        clientSocket.Close(); //This might need to come out?
                         return; //Maybe find a different way to do this? break?
                     }
+                    //Grab the location of HTTP within the request string
                     index = buffer.IndexOf("HTTP");
 
                     //Grab the 8 characters comprising the HTTP version
@@ -129,10 +133,40 @@ namespace A06_WebServer
 
         /// <summary>
         /// Is this the sending back of a response?
+        /// Consider changing the name to SendResponse()?
         /// </summary>
         public void SendRequest()
         {
             //request object/class needed maybe?
+        }
+
+        /// I created this so I don't hijack SendRequest in case that was meant to do something different
+        /// This will handle sending the reponse back to the browser
+        /// takes in the status code and other stuff? string response holding the actual constructed response?
+        public void SendResponse(int statusCode, string response)
+        {
+            //NetworkStream into a streamwriter back to the client?
+            NetworkStream stream = new NetworkStream(clientSocket);
+            StreamWriter sw = new StreamWriter(stream);
+
+
+            //This is probably real messy, sorry. Just "coding out loud"
+            sw.WriteLine($"HTTP/1.1 {statusCode} ");
+
+            if (statusCode != 200)
+            {
+                //If we're in this block, there was an issue. We need only to log the status code.
+                serverLog.Log($"{ statusCode }"); //Status 405 Method Not Allowed
+                return; //Probably wrong? But kick out of SendResponse
+            }
+            string dateString = DateTime.Now.ToString();
+
+            sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
+            sw.WriteLine($"Server:JSmith-IEwing-Server9000"); //This should always be the same?
+            sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
+            sw.WriteLine($"Date:{dateString}");
+
+
         }
 
         /// <summary>
