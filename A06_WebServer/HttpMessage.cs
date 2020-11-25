@@ -52,7 +52,20 @@ namespace A06_WebServer
 
             return outputString;
         }
-        
+
+        /// <summary>
+        /// returns the entire Request as a nicely formatted string
+        /// </summary>
+        /// <returns></returns>
+        public override string WholeMessage()
+        {
+            string everything = "";
+
+            everything = this.TopLine() + "\n" + this.Headers() + "\n" + Body;
+
+            return everything;
+        }
+
         public RequestStartLine startLine;
         public Dictionary<string, string> headers;
 
@@ -89,9 +102,19 @@ namespace A06_WebServer
         /// <returns>string with formatted headers</returns>
         public override string Headers()
         {
-            string outputString = "Date: " + Date.ToString() + "\nServerL: " + Server + "\n Content-Type: " + ContentType.ToString() + "\n Content-Length: " + ContentLength;
+            string outputString = "Date: " + Date.ToString() + "\nServer: " + Server + "\n Content-Type: " + ContentType.ToString() + "\n Content-Length: " + ContentLength;
 
             return outputString;
+        }
+
+        public override string WholeMessage()
+        {
+            string everything = "";
+
+            everything = this.TopLine() + "\n" + this.Headers() + "\n" + this.Body;
+
+            return everything;
+        
         }
 
         public ResponseStartLine startLine;
