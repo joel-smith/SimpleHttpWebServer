@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+
 namespace A06_WebServer
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace A06_WebServer
         public abstract string Headers();
 
         //would this be useful?
-        //public abstract string WholeMessage();
+        public abstract string WholeMessage();
 
         public string Body;
     }
