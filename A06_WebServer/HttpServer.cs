@@ -101,10 +101,14 @@ namespace A06_WebServer
                     version = buffer.Substring(index, 8);
 
                     /* =======================================================================================
-                     * This needs ot change. Right now it grabs GET and teh target
+                     * This needs to change. Right now it grabs GET and the target
                      =========================================================================================*/
                     //Will grab a substring from beginning to just before position of the HTTP version
                     target = buffer.Substring(0, (index - 1));
+                    //Grab the index of the last forward slash + 1
+                    index = (target.LastIndexOf("/") + 1);
+                    //This will grab the string beginning with the first character of the filename
+                    target = target.Substring(index);
 
                     //Log the http verb and the requested resource
                     serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
