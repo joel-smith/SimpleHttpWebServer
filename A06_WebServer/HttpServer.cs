@@ -16,7 +16,7 @@ namespace A06_WebServer
     /// </summary>
     public class HttpServer
     {
-        Logger.HttpServerLogger serverLog;
+        public Logger.HttpServerLogger serverLog;
 
         private static TcpListener serverListener;
 

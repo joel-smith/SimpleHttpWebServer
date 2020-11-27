@@ -81,9 +81,6 @@ namespace A06_WebServer
             string ipAddress = null;
             
 
-            //initialize logger
-            Logger.HttpServerLogger serverLog = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log"); //make this definable?
-
             //Check to make sure arguments were inputted.
             if (args.Length == 0)
             {
@@ -146,6 +143,7 @@ namespace A06_WebServer
             //Format our user inputted string into an IPAddress
             IPAddress address = IPAddress.Parse(ipAddress);
 
+            //server creation
             HttpServer server = new HttpServer(path, address, port);
 
             //Debugging purposes
@@ -154,7 +152,7 @@ namespace A06_WebServer
             Console.WriteLine($"The Ip Adress is {ipAddress}");
 
             //Log the server startup parameters
-            serverLog.Log($"[SERVER STARTED] {args[0]} {args[1]} {args[2]}"); 
+            server.serverLog.Log($"[SERVER STARTED] {args[0]} {args[1]} {args[2]}"); 
 
             //Call to begin server process, passing in our ipaddress and port number
             server.Init();

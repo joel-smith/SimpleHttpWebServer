@@ -19,7 +19,7 @@ namespace A06_WebServer
         /// <summary>
         /// find the logger type you need in here
         /// </summary>
-        class Logger
+        public class Logger
         {
         
         /// <summary>
