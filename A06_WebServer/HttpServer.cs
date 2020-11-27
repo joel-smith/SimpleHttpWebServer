@@ -126,8 +126,9 @@ namespace A06_WebServer
         /// this function can return a HttpRequest object
         /// </summary>
         /// <param name="Request"></param>
-        public static void ParseRequest(Request Request)
+        public void ParseRequest(Request Request)
         {
+
             //Grab the file we're searching for
             string targetFile = Request.startLine.Target;
 
@@ -137,14 +138,16 @@ namespace A06_WebServer
 
             //Gotta grab the -webroot here somehow. Will figure that out later
             //Maybe include the -webroot in the Request object?
-            string filePath = webroot + targetFile;
+            string filePath = @"C:\webServerResources\" + targetFile;
 
             if (File.Exists(filePath) == false) //The file doesn't exist, give them the classic 404
             {
                 //Return a 404 here to browser
                 //Log it too
+                Console.WriteLine("404: Fake news");
+                SendResponse(404, null);
             }
-            else
+            else //might need to make this an else if mime check for text
             {
                 int totalBytesRead = 0;
                 FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -152,6 +155,16 @@ namespace A06_WebServer
                 BinaryReader reader = new BinaryReader(fs);
                 //Create an array of bytes equal in size to the length of the file stream
                 Byte[] bytes = new byte[fs.Length];
+
+                int byteCountLoop;
+                string fileContents = "";
+                //Do a binaryread.read
+                while((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
+                {
+                    fileContents += Encoding.ASCII.GetString(bytes, 0, byteCountLoop);
+                    totalBytesRead += byteCountLoop;
+                }
+                SendResponse(200, fileContents);
             }
 
             //plain text(specifically the .txt extension)
@@ -185,6 +198,8 @@ namespace A06_WebServer
             StreamWriter sw = new StreamWriter(stream);
 
 
+
+
             //This is probably real messy, sorry. Just "coding out loud"
             sw.WriteLine($"HTTP/1.1 {statusCode} ");
 
@@ -194,11 +209,13 @@ namespace A06_WebServer
                 serverLog.Log($"{ statusCode }"); //Status 405 Method Not Allowed
                 return; //Probably wrong? But kick out of SendResponse
             }
+            int contentLength = response.Length;
             string dateString = DateTime.Now.ToString();
 
+            sw.WriteLine($"Content-type:text");
             //sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
             sw.WriteLine($"Server:JSmith-IEwing-Server9000"); //This should always be the same?
-            //sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
+            sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
             sw.WriteLine($"Date:{dateString}");
 
 
