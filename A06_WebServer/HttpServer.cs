@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace A06_WebServer
 {
@@ -78,8 +79,10 @@ namespace A06_WebServer
                 {
                     //Array of bytes to hold data received
                     Byte[] bytes = new byte[1024];
+                    
                     //Store the data in the new bytes array
                     clientSocket.Receive(bytes, bytes.Length, 0);
+
                     //Translate the received bytes into the HTTP request
                     string buffer = Encoding.ASCII.GetString(bytes);
 
@@ -100,9 +103,6 @@ namespace A06_WebServer
                     //Grab the 8 characters comprising the HTTP version
                     version = buffer.Substring(index, 8);
 
-                    /* =======================================================================================
-                     * This needs to change. Right now it grabs GET and the target
-                     =========================================================================================*/
                     //Will grab a substring from beginning to just before position of the HTTP version
                     target = buffer.Substring(0, (index - 1));
                     //Grab the index of the last forward slash + 1
@@ -112,8 +112,6 @@ namespace A06_WebServer
 
                     //Log the http verb and the requested resource
                     serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
-
-
 
                     Request browserRequest = new Request(target, "localhost");//May need to adjust this instead of "localhost" being hardcoded.
 
@@ -128,8 +126,47 @@ namespace A06_WebServer
         /// this function can return a HttpRequest object
         /// </summary>
         /// <param name="Request"></param>
-        public static void ParseRequest(Request Request)
+        public void ParseRequest(Request Request)
         {
+
+            //Grab the file we're searching for
+            string targetFile = Request.startLine.Target;
+
+            //Theoretically this should get the file type extension
+            //but cosmic rays so...
+            string mimeType = MimeMapping.GetMimeMapping(targetFile);
+
+            //Gotta grab the -webroot here somehow. Will figure that out later
+            //Maybe include the -webroot in the Request object?
+            string filePath = @"C:\webServerResources\" + targetFile;
+
+            if (File.Exists(filePath) == false) //The file doesn't exist, give them the classic 404
+            {
+                //Return a 404 here to browser
+                //Log it too
+                Console.WriteLine("404: Fake news");
+                SendResponse(404, null);
+            }
+            else //might need to make this an else if mime check for text
+            {
+                int totalBytesRead = 0;
+                FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+
+                BinaryReader reader = new BinaryReader(fs);
+                //Create an array of bytes equal in size to the length of the file stream
+                Byte[] bytes = new byte[fs.Length];
+
+                int byteCountLoop;
+                string fileContents = "";
+                //Do a binaryread.read
+                while((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
+                {
+                    fileContents += Encoding.ASCII.GetString(bytes, 0, byteCountLoop);
+                    totalBytesRead += byteCountLoop;
+                }
+                SendResponse(200, fileContents);
+            }
+
             //plain text(specifically the .txt extension)
             //HTML files(and their various extensions)
             //JPG images(and their various extensions)
@@ -161,6 +198,8 @@ namespace A06_WebServer
             StreamWriter sw = new StreamWriter(stream);
 
 
+
+
             //This is probably real messy, sorry. Just "coding out loud"
             sw.WriteLine($"HTTP/1.1 {statusCode} ");
 
@@ -170,11 +209,13 @@ namespace A06_WebServer
                 serverLog.Log($"{ statusCode }"); //Status 405 Method Not Allowed
                 return; //Probably wrong? But kick out of SendResponse
             }
+            int contentLength = response.Length;
             string dateString = DateTime.Now.ToString();
 
+            sw.WriteLine($"Content-type:text");
             //sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
             sw.WriteLine($"Server:JSmith-IEwing-Server9000"); //This should always be the same?
-            //sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
+            sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
             sw.WriteLine($"Date:{dateString}");
 
 
