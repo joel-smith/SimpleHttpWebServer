@@ -147,7 +147,7 @@ namespace A06_WebServer
                 Console.WriteLine("404: Fake news");
                 SendResponse(404, null);
             }
-            else //might need to make this an else if mime check for text
+            else if (mimeType.Contains("text")) //Filter here if contains text
             {
                 int totalBytesRead = 0;
                 FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -166,7 +166,14 @@ namespace A06_WebServer
                 }
                 SendResponse(200, fileContents);
             }
-
+            else if (mimeType.Contains("image"))
+            {
+                //Enter if requested file is image (jpeg or gif)
+            }
+            else
+            {
+                SendResponse(415, null); // Unsupported Media Type
+            }
             //plain text(specifically the .txt extension)
             //HTML files(and their various extensions)
             //JPG images(and their various extensions)
