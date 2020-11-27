@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace A06_WebServer
 {
@@ -78,8 +79,10 @@ namespace A06_WebServer
                 {
                     //Array of bytes to hold data received
                     Byte[] bytes = new byte[1024];
+                    
                     //Store the data in the new bytes array
                     clientSocket.Receive(bytes, bytes.Length, 0);
+
                     //Translate the received bytes into the HTTP request
                     string buffer = Encoding.ASCII.GetString(bytes);
 
@@ -100,9 +103,6 @@ namespace A06_WebServer
                     //Grab the 8 characters comprising the HTTP version
                     version = buffer.Substring(index, 8);
 
-                    /* =======================================================================================
-                     * This needs to change. Right now it grabs GET and the target
-                     =========================================================================================*/
                     //Will grab a substring from beginning to just before position of the HTTP version
                     target = buffer.Substring(0, (index - 1));
                     //Grab the index of the last forward slash + 1
@@ -112,8 +112,6 @@ namespace A06_WebServer
 
                     //Log the http verb and the requested resource
                     serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
-
-
 
                     Request browserRequest = new Request(target, "localhost");//May need to adjust this instead of "localhost" being hardcoded.
 
@@ -130,6 +128,27 @@ namespace A06_WebServer
         /// <param name="Request"></param>
         public static void ParseRequest(Request Request)
         {
+            //Grab the file we're searching for
+            string targetFile = Request.startLine.Target;
+
+            //Theoretically this should get the file type extension
+            //but cosmic rays so...
+            string mimeType = MimeMapping.GetMimeMapping(targetFile);
+
+            //Gotta grab the -webroot here somehow. Will figure that out later
+            //Maybe include the -webroot in the Request object?
+            string filePath = webroot + targetFile;
+
+            if (File.Exists(filePath) == false) //The file doesn't exist, give them the classic 404
+            {
+                //Return a 404 here to browser
+                //Log it too
+            }
+            else
+            {
+
+            }
+
             //plain text(specifically the .txt extension)
             //HTML files(and their various extensions)
             //JPG images(and their various extensions)
