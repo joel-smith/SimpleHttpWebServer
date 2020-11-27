@@ -146,7 +146,12 @@ namespace A06_WebServer
             }
             else
             {
+                int totalBytesRead = 0;
+                FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
 
+                BinaryReader reader = new BinaryReader(fs);
+                //Create an array of bytes equal in size to the length of the file stream
+                Byte[] bytes = new byte[fs.Length];
             }
 
             //plain text(specifically the .txt extension)
