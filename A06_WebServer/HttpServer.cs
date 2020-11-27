@@ -27,7 +27,7 @@ namespace A06_WebServer
 
 
         /// <summary>
-        /// constructor for HttpServer class, currently takes one input the log file
+        /// constructor for HttpServer class, currently takes one input; the log file path
         /// </summary>
         public HttpServer()
         {
@@ -69,9 +69,9 @@ namespace A06_WebServer
             string verb = null;
             int statusCode = 0;
 
-            
             while (true)
             {
+                //Establish a socket and listen for connections
                 clientSocket = serverListener.AcceptSocket();
 
                 if (clientSocket.Connected)
@@ -100,6 +100,9 @@ namespace A06_WebServer
                     //Grab the 8 characters comprising the HTTP version
                     version = buffer.Substring(index, 8);
 
+                    /* =======================================================================================
+                     * This needs ot change. Right now it grabs GET and teh target
+                     =========================================================================================*/
                     //Will grab a substring from beginning to just before position of the HTTP version
                     target = buffer.Substring(0, (index - 1));
 
@@ -165,9 +168,9 @@ namespace A06_WebServer
             }
             string dateString = DateTime.Now.ToString();
 
-            sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
+            //sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
             sw.WriteLine($"Server:JSmith-IEwing-Server9000"); //This should always be the same?
-            sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
+            //sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
             sw.WriteLine($"Date:{dateString}");
 
 

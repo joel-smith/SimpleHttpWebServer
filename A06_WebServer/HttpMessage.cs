@@ -67,7 +67,7 @@ namespace A06_WebServer
         }
 
         public RequestStartLine startLine;
-        public Dictionary<string, string> headers;
+        public Dictionary<string, string> headers = new Dictionary<string, string>();
 
         /// <summary>
         /// constructor to make a GET HTTP/1.1 request from target and host
