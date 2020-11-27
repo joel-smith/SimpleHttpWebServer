@@ -101,10 +101,15 @@ namespace A06_WebServer
                     version = buffer.Substring(index, 8);
 
                     /* =======================================================================================
-                     * This needs ot change. Right now it grabs GET and teh target
+                     * This needs to change. Right now it grabs GET and the target
                      =========================================================================================*/
                     //Will grab a substring from beginning to just before position of the HTTP version
                     target = buffer.Substring(0, (index - 1));
+                    //Grab the length of our target string
+                    index = target.Length;
+                    //I don't love this. Its a bit magic number heavy. But it solves the problem?
+                    //Makes target grab just the part of the string that doesn't include the GET request.
+                    target = target.Substring(4, (index - 4));
 
                     //Log the http verb and the requested resource
                     serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
