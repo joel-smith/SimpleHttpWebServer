@@ -111,7 +111,7 @@ namespace A06_WebServer
                     target = target.Substring(index);
 
                     //Log the http verb and the requested resource
-                    serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
+                    serverLog.Log($"HTTP Verb {verb} Resource: {target}");
 
                     Request browserRequest = new Request(target, "localhost");//May need to adjust this instead of "localhost" being hardcoded.
 
@@ -123,7 +123,8 @@ namespace A06_WebServer
 
         /// <summary>
         /// basic function to parse the request on the http server
-        /// this function can return a HttpRequest object
+        /// Calls SendResponse() based off the mimtype of the file requested
+        /// no return
         /// </summary>
         /// <param name="Request"></param>
         public void ParseRequest(Request Request)
@@ -143,8 +144,6 @@ namespace A06_WebServer
             if (File.Exists(filePath) == false) //The file doesn't exist, give them the classic 404
             {
                 //Return a 404 here to browser
-                //Log it too
-                Console.WriteLine("404: Fake news");
                 SendResponse(404, null);
             }
             else if (mimeType.Contains("text")) //Filter here if contains text
@@ -165,6 +164,8 @@ namespace A06_WebServer
                     totalBytesRead += byteCountLoop;
                 }
                 SendResponse(200, fileContents);
+                reader.Close();
+                fs.Close();
             }
             else if (mimeType.Contains("image"))
             {
@@ -172,18 +173,9 @@ namespace A06_WebServer
             }
             else
             {
+                //This will catch things like .aspx requests
                 SendResponse(415, null); // Unsupported Media Type
             }
-            //plain text(specifically the .txt extension)
-            //HTML files(and their various extensions)
-            //JPG images(and their various extensions)
-            //GIF
-
-            //make our own HttpError object/class maybe?
-            //maybe even make this function be: 
-            //public HttpError ParseRequest(string Request)
-            //and return void if is successful?
-            //maybe need HttpResponse class? HttpError can be a subclass?
         }
 
         /// <summary>
@@ -219,13 +211,22 @@ namespace A06_WebServer
             int contentLength = response.Length;
             string dateString = DateTime.Now.ToString();
 
-            sw.WriteLine($"Content-type:text");
-            //sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
-            sw.WriteLine($"Server:JSmith-IEwing-Server9000"); //This should always be the same?
-            sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
-            sw.WriteLine($"Date:{dateString}");
+            //sw.WriteLine($"Content-type:text");
+            ////sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
+            //sw.WriteLine($"Server:JSmith-IEwing-Server9000"); //This should always be the same?
+            //sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
+            //sw.WriteLine($"Date:{dateString}");
 
+            //Byte[] msg = Encoding.UTF8.GetBytes("HTTP/1.1 200\r\n");
+            //clientSocket.Send(msg);
+            //msg = Encoding.UTF8.GetBytes($"Content-Type:text\r\nServer:JSmmith-IEwing-Server9000\r\nContent-Length:{contentLength}\r\nDate:{dateString}\r\n");
+            //clientSocket.Send(msg);
+            //msg = Encoding.UTF8.GetBytes(response);
+            //clientSocket.Send(msg);
 
+            string message = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n" + response;
+            Byte[] msg = Encoding.UTF8.GetBytes(message);
+            clientSocket.Send(msg);
         }
 
         /// <summary>
