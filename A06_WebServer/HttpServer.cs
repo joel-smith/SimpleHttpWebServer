@@ -108,7 +108,7 @@ namespace A06_WebServer
                     //Grab the index of the last forward slash + 1
                     index = (target.LastIndexOf("/") + 1);
                     //This will grab the string beginning with the first character of the filename
-                    target = buffer.Substring(index);
+                    target = target.Substring(index);
 
                     //Log the http verb and the requested resource
                     serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
