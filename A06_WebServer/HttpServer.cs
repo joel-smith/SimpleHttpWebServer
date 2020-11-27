@@ -105,11 +105,10 @@ namespace A06_WebServer
                      =========================================================================================*/
                     //Will grab a substring from beginning to just before position of the HTTP version
                     target = buffer.Substring(0, (index - 1));
-                    //Grab the length of our target string
-                    index = target.Length;
-                    //I don't love this. Its a bit magic number heavy. But it solves the problem?
-                    //Makes target grab just the part of the string that doesn't include the GET request.
-                    target = target.Substring(4, (index - 4));
+                    //Grab the index of the last forward slash + 1
+                    index = (target.LastIndexOf("/") + 1);
+                    //This will grab the string beginning with the first character of the filename
+                    target = buffer.Substring(index);
 
                     //Log the http verb and the requested resource
                     serverLog.Log($"HTTP Verb {verb} Resourse: {target}");
