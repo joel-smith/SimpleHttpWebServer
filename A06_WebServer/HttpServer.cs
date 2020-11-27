@@ -20,31 +20,38 @@ namespace A06_WebServer
 
         private static TcpListener serverListener;
 
-        //I think these make more sense as coming in from run.cs input
-        private readonly int port; // = 5050; //Has to be configurable by user input
-        private readonly IPAddress ipAddress; //Has to be configurable by user
+        //assigned only in constructor
+        readonly string webRoot;
+        readonly IPAddress webIP;
+        readonly int webPort; 
+       
 
         Socket clientSocket;
 
 
         /// <summary>
-        /// constructor for HttpServer class, currently takes one input; the log file path
+        /// constructor for HttpServer that takes command line arguments
         /// </summary>
-        public HttpServer()
+        /// <param name="serverRoot">command line arg for root of server directory</param>
+        /// <param name="serverIP">command line arg as IPAddress for serverIP </param>
+        /// <param name="serverPort">port number for server</param>
+        public HttpServer(string serverRoot, IPAddress serverIP, int serverPort)
         {
-            
-            serverLog = new Logger.HttpServerLogger("C:/temp/myOwnWebServer.log");
+            webRoot = serverRoot;
+            webIP = serverIP;
+            webPort = serverPort;
+            serverLog = new Logger.HttpServerLogger("./myOwnWebServer.log");
         }
 
         /// <summary>
         /// start up server, listen?
         /// </summary>
-        public void Init(IPAddress address, int port)
+        public void Init()
         {
             try
             {
                 //initialize TcpListener
-                serverListener = new TcpListener(address, port);
+                serverListener = new TcpListener(webIP, webPort);
                 serverListener.Start();
                 Thread thread = new Thread(new ThreadStart(GetRequest));
                 thread.Start();
@@ -136,7 +143,7 @@ namespace A06_WebServer
             //Theoretically this should get the file type extension
             //but cosmic rays so...
             string mimeType = MimeMapping.GetMimeMapping(targetFile);
-
+            Console.WriteLine(mimeType);
             //Gotta grab the -webroot here somehow. Will figure that out later
             //Maybe include the -webroot in the Request object?
             string filePath = @"C:\webServerResources\" + targetFile;
@@ -187,6 +194,11 @@ namespace A06_WebServer
             //request object/class needed maybe?
         }
 
+        public void SendResponseObject(Response serverSend)
+        {
+
+        }
+
         /// I created this so I don't hijack SendRequest in case that was meant to do something different
         /// This will handle sending the reponse back to the browser
         /// takes in the status code and other stuff? string response holding the actual constructed response?
@@ -230,10 +242,13 @@ namespace A06_WebServer
         }
 
         /// <summary>
-        /// 
+        /// clears up server to exit
         /// </summary>
         public void Close()
         {
+            serverListener.Stop();
+            clientSocket.Close();
+            
             serverLog.Log("Closing server");
         }
 
