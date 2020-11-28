@@ -144,69 +144,7 @@ namespace A06_WebServer
         }
     }
 
-    /// <summary>
-    /// generic Response class, built to handle headers of 
-    /// Date, Server, Content-Type, Content-Length
-    /// </summary>
-    public class Response : HttpMessage 
-    {
-        //status line
-        //example: "HTTP/1.1 404 Not Found"
-        public override string TopLine()
-        {
-            return startLine.ToString();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>string with formatted headers</returns>
-        public override string Headers()
-        {
-            string outputString = "Date:%20" + Date.ToString() + "%0AServer:%20" + Server + "%0A%20Content-Type:%20" + ContentType.ToString() + "%0A%20Content-Length:%20" + ContentLength;
-
-            return outputString;
-        }
-
-        public override string WholeMessage()
-        {
-            string everything = "";
-
-            everything = this.TopLine() + "%0A" + this.Headers() + "%0A" + this.Body;
-
-            return everything;
-        
-        }
-
-        public ResponseStartLine startLine;
-
-        //headers, required content-type, content-length, server, date
-        public HttpContentType ContentType;
-        public int ContentLength;
-        public string Server;
-        public DateTime Date;
-
-        //body
-        
-
-
-        //constructor to be used 
-        //need to set body after in the server
-       
-        /// <summary>
-        /// constructor intended to be used to return 
-        /// </summary>
-        /// <param name="contentType">struct representing MIME type and extension for response message</param>
-        /// <param name="contentLength">integer representing bytes in the message</param>
-        /// <param name="server">string representing hostname or some info about the server</param>
-        public Response(HttpContentType contentType, int contentLength, string server)
-        {
-            ContentType = contentType;
-            ContentLength = contentLength;
-            Server = server;
-            Date = DateTime.Now;
-        }
-    }
+    
 
     /// <summary>
     /// struct that holds individual data pieces for startline and returns good string for it
@@ -247,17 +185,4 @@ namespace A06_WebServer
         
     }
 
-    public struct HttpContentType
-    {
-        public HttpContentType(string media, string extension)
-        {
-            Media = media;
-            Extension = extension;
-        }
-
-        public string Media { get; set; } //MIME type of the resource (text, image)
-        public string Extension { get; set; } //File extension (txt, html)
-
-        public override string ToString() => $"{Media}" + "/" + "{Extension}";
-    }
 }

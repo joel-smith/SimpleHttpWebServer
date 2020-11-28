@@ -129,16 +129,17 @@ namespace A06_WebServer
                     Request browserRequest = new Request(target, webRoot);
 
                     //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
-                    NewParseRequest(browserRequest);
+                    ParseRequest(browserRequest);
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// takes a request object and turns it into a response by transferring relevant metadata,
+        /// measures the length and takes the bytes
         /// </summary>
-        /// <param name="inputReq"></param>
-        public void NewParseRequest(Request inputReq)
+        /// <param name="inputReq">request object to turn into response</param>
+        public void ParseRequest(Request inputReq)
         {
             //declare our return
             NewResponse returnResponse;
@@ -154,7 +155,7 @@ namespace A06_WebServer
                 //Return a 404 here to browser
                 SendResponse(404, "<h2>404: Not Found</h2>");
             }
-            else if (mimeType.Contains("text")) //Filter here if contains text
+            else if (mimeType.Contains("text") || mimeType.Contains("image")) //Filter here if contains text
             {
                 //get the length
                 FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -178,116 +179,29 @@ namespace A06_WebServer
                 reader.Close();
                 fs.Close();
             }
-            else if (mimeType.Contains("image"))
-            {
-
-            }
             else
             {
                 SendResponse(415, "<h2>415: Unsupported Media Type</h2>"); // Unsupported Media Type
             }
 
-                //int status
-                //int contentLength
         }
+
 
         /// <summary>
-        /// basic function to parse the request on the http server
-        /// Calls SendResponse() based off the mimtype of the file requested
-        /// no return
+        /// working sendresponse
         /// </summary>
-        /// <param name="inputReq"></param>
-        public void ParseRequest(Request inputReq)
-        {
-
-            //Grab the file we're searching for
-            string targetFile = inputReq.startLine.Target;
-
-            //This will grab the mime type of the requested content
-            string mimeType = MimeMapping.GetMimeMapping(targetFile);
-
-            Console.WriteLine(mimeType);
-
-            Console.WriteLine("webRoot is" + webRoot + "\n");
-
-            string filePath = webRoot + @"/" + targetFile;
-            Console.WriteLine("filePath is " + filePath + "\n");
-
-            if (File.Exists(filePath) == false) //The file doesn't exist, give them the classic 404
-            {
-                //Return a 404 here to browser
-                SendResponse(404, "<h2>404: Not Found</h2>");
-            }
-            else if (mimeType.Contains("text")) //Filter here if contains text
-            {
-                int totalBytesRead = 0;
-                FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-
-                BinaryReader reader = new BinaryReader(fs);
-                //Create an array of bytes equal in size to the length of the file stream
-                Byte[] bytes = new byte[fs.Length];
-
-                int byteCountLoop;
-                string fileContents = "";
-                //Do a binaryread.read
-                while ((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
-                {
-                    fileContents += Encoding.Default.GetString(bytes, 0, byteCountLoop);
-                    totalBytesRead += byteCountLoop;
-                }
-                SendResponse(200, fileContents);
-                reader.Close();
-                fs.Close();
-            }
-            else if (mimeType.Contains("image"))
-            {
-                int totalBytesRead = 0;
-                FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-
-                BinaryReader reader = new BinaryReader(fs);
-                //Create an array of bytes equal in size to the length of the file stream
-                Byte[] bytes = new byte[fs.Length];
-                
-                int byteCountLoop;
-                string fileContents = "";
-                //Do a binaryread.read
-                while ((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
-                {
-                    fileContents += Encoding.Default.GetString(bytes, 0, byteCountLoop);
-                    totalBytesRead += byteCountLoop;
-                }
-                SendResponse(200, fileContents);
-                reader.Close();
-                fs.Close();
-
-                
-            }
-            else
-            {
-                //This will catch things like .aspx requests
-                SendResponse(415, "<h2>415: Unsupported Media Type</h2>"); // Unsupported Media Type
-            }
-        }
-
-
+        /// <param name="serverSend">the response to send back</param>
         public void NewSendResponse(NewResponse serverSend)
         {
-            //NetworkStream stream = new NetworkStream(clientSocket);
-            //StreamWriter sw = new StreamWriter(stream);
-            //string returnResponse = serverSend.WholeMessage();
-
-            //Byte[] responseBytes = Encoding.UTF8.GetBytes(returnResponse);
-            //clientSocket.Send(responseBytes);
-
-
-            
+            double version = serverSend.startLine.Version;
             int contentLength = Int32.Parse(serverSend.headers["Content-Length"]);
+            string contentType = serverSend.headers["Content-Type"];
             int statusCode = serverSend.startLine.Code;
             
             string dateString = DateTime.Now.ToString();
 
             //Send just the header to the client. This allows us to send back negative status codes too.
-            string header = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
+            string header = $"HTTP/{version} {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: {contentType}\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
             Byte[] msg = Encoding.UTF8.GetBytes(header);
             clientSocket.Send(msg);
 
@@ -309,9 +223,11 @@ namespace A06_WebServer
             clientSocket.Close(); //needed to have repeated requests
         }
 
-        /// I created this so I don't hijack SendRequest in case that was meant to do something different
-        /// This will handle sending the reponse back to the browser
-        /// takes in the status code and other stuff? string response holding the actual constructed response?
+        /// <summary>
+        /// currently only used for sending errors
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="response"></param>
         public void SendResponse(int statusCode, string response)
         {
             //Only grab the string length if there's actual content to send to client
@@ -353,6 +269,10 @@ namespace A06_WebServer
 
             serverLog.Log("Closing server");
         }
+
+
+
+        
 
     }
 }
