@@ -23,18 +23,15 @@ namespace A06_WebServer
     /// </summary>
     public class HttpServer
     {
-        public Logger.HttpServerLogger serverLog;
-
-        private static TcpListener serverListener;
-
         //assigned only in constructor
         readonly string webRoot;
         readonly IPAddress webIP;
-        readonly int webPort; 
-       
+        readonly int webPort;
 
+        public Logger.HttpServerLogger serverLog;
+
+        private static TcpListener serverListener;
         Socket clientSocket;
-
 
         /// <summary>
         /// constructor for HttpServer that takes command line arguments
@@ -73,7 +70,8 @@ namespace A06_WebServer
         }
 
         /*
-         * Listen for the browser request, ensure it meets our needs, pass to ParseRequest for heavy lifting
+         * Listen for the browser request, ensure it meets our needs, 
+         * pass to ParseRequest for heavy lifting
          * 
          */
         private void GetRequest()
@@ -127,7 +125,8 @@ namespace A06_WebServer
                     //Log the http verb and the requested resource
                     serverLog.Log($"HTTP Verb {verb} Resource: {target}");
 
-                    Request browserRequest = new Request(target, "localhost");//May need to adjust this instead of "localhost" being hardcoded.
+                    //webRoot works here
+                    Request browserRequest = new Request(target, webRoot);
 
                     //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
                     ParseRequest(browserRequest);
@@ -140,17 +139,18 @@ namespace A06_WebServer
         /// Calls SendResponse() based off the mimtype of the file requested
         /// no return
         /// </summary>
-        /// <param name="Request"></param>
-        public void ParseRequest(Request Request)
+        /// <param name="inputReq"></param>
+        public void ParseRequest(Request inputReq)
         {
 
             //Grab the file we're searching for
-            string targetFile = Request.startLine.Target;
+            string targetFile = inputReq.startLine.Target;
             
 
             //Theoretically this should get the file type extension
             //but cosmic rays so...
             string mimeType = MimeMapping.GetMimeMapping(targetFile);
+            
             Console.WriteLine(mimeType);
 
             Console.WriteLine("webRoot is" + webRoot + "\n");

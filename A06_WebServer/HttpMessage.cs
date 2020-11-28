@@ -102,7 +102,7 @@ namespace A06_WebServer
         /// <returns>string with formatted headers</returns>
         public override string Headers()
         {
-            string outputString = "Date: " + Date.ToString() + "\nServer: " + Server + "\n Content-Type: " + ContentType.ToString() + "\n Content-Length: " + ContentLength;
+            string outputString = "Date:%20" + Date.ToString() + "%0AServer:%20" + Server + "%0A%20Content-Type:%20" + ContentType.ToString() + "%0A%20Content-Length:%20" + ContentLength;
 
             return outputString;
         }
@@ -111,7 +111,7 @@ namespace A06_WebServer
         {
             string everything = "";
 
-            everything = this.TopLine() + "\n" + this.Headers() + "\n" + this.Body;
+            everything = this.TopLine() + "%0A" + this.Headers() + "%0A" + this.Body;
 
             return everything;
         
