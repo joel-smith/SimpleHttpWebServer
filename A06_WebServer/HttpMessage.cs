@@ -13,61 +13,17 @@ namespace A06_WebServer
     /// </summary>
     public abstract class HttpMessage
     {
-        /// <summary>
-        /// returns the topline or startline for the message, format varies
-        /// </summary>
-        /// <returns>The TopLine as a string</returns>
-        public abstract string TopLine();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>returns all the headers the object has, as strings</returns>
-        public abstract string Headers();
-
-        //would this be useful?
-        public abstract string WholeMessage();
-
-        public string Body;
+        public Dictionary<string, string> headers = new Dictionary<string, string>();
+        public Byte[] bodyBytes;
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
     public class Request : HttpMessage
-    {
-        public override string TopLine()
-        {
-            return startLine.ToString();
-        }
-
-        /// <summary>
-        /// gives you the headers from that dictionary in a nice way
-        /// </summary>
-        /// <returns>string containing the headers</returns>
-        public override string Headers()
-        {
-            string outputString = "";
-            foreach(KeyValuePair<string, string> key in headers)
-            {
-                outputString = outputString + key.Key + key.Value + "\n";
-            }
-
-            return outputString;
-        }
-
-        /// <summary>
-        /// returns the entire Request as a nicely formatted string
-        /// </summary>
-        /// <returns></returns>
-        public override string WholeMessage()
-        {
-            string everything = "";
-
-            everything = this.TopLine() + "\n" + this.Headers() + "\n" + Body;
-
-            return everything;
-        }
-
-        public RequestStartLine startLine;
-        public Dictionary<string, string> headers = new Dictionary<string, string>();
+    {      
+        public RequestStartLine startLine;  
+       
 
         /// <summary>
         /// constructor to make a GET HTTP/1.1 request from target and host
@@ -84,15 +40,12 @@ namespace A06_WebServer
     }
 
     /// <summary>
-    /// NewResponse, KISS keep it simple, store all headers in <string, string> dictionary
+    /// Response, KISS keep it simple, store all headers in <string, string> dictionary
     /// </summary>
-    public class NewResponse : HttpMessage
+    public class Response : HttpMessage
     {
-
         public ResponseStartLine startLine;
-        public Dictionary<string, string> headers = new Dictionary<string, string>();
 
-        public Byte[] bodyBytes;
 
         /// <summary>
         /// to be used for NewParseRequest() to fill
@@ -101,7 +54,7 @@ namespace A06_WebServer
         /// <param name="status"></param>
         /// <param name="contentType"></param>
         /// <param name="contentLength"></param>
-        public NewResponse(double version, int status, string contentType, int contentLength)
+        public Response(double version, int status, string contentType, int contentLength)
         {
             startLine.Version = version;
             startLine.Code = status;
@@ -113,38 +66,12 @@ namespace A06_WebServer
         }
 
 
-
         public void FillBody(Byte[] inputBytes)
         {
-            //for (int i = 0; i < inputBytes.Length; i++)
-            //{
-            //    bodyBytes[i] = inputBytes[i];
-            //}
-
             bodyBytes = inputBytes.ToArray();
         }
 
-
-
-
-        //do we even need these overrides??
-        public override string Headers()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string TopLine()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string WholeMessage()
-        {
-            throw new NotImplementedException();
-        }
     }
-
-    
 
     /// <summary>
     /// struct that holds individual data pieces for startline and returns good string for it

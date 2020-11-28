@@ -142,7 +142,7 @@ namespace A06_WebServer
         public void ParseRequest(Request inputReq)
         {
             //declare our return
-            NewResponse returnResponse;
+            Response returnResponse;
             
             //Grab the file we're searching for
             string targetFile = inputReq.startLine.Target;
@@ -161,8 +161,8 @@ namespace A06_WebServer
                 FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                 messageLength = (int)fs.Length;
                 
-                //make NewResponse object for text
-                returnResponse = new NewResponse(1.1, 200, mimeType, messageLength);
+                //make Response object for text
+                returnResponse = new Response(1.1, 200, mimeType, messageLength);
 
                 BinaryReader reader = new BinaryReader(fs);
                 //Create an array of bytes equal in size to the length of the file stream
@@ -191,7 +191,7 @@ namespace A06_WebServer
         /// working sendresponse
         /// </summary>
         /// <param name="serverSend">the response to send back</param>
-        public void NewSendResponse(NewResponse serverSend)
+        public void NewSendResponse(Response serverSend)
         {
             double version = serverSend.startLine.Version;
             int contentLength = Int32.Parse(serverSend.headers["Content-Length"]);
