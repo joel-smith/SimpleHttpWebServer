@@ -54,7 +54,8 @@ namespace A06_WebServer
         /// <param name="status"></param>
         /// <param name="contentType"></param>
         /// <param name="contentLength"></param>
-        public Response(double version, int status, string contentType, int contentLength)
+        /// <param name="inputBytes"></param>
+        public Response(double version, int status, string contentType, int contentLength, Byte[] inputBytes)
         {
             startLine.Version = version;
             startLine.Code = status;
@@ -63,11 +64,6 @@ namespace A06_WebServer
             headers.Add("Date", DateTime.Now.ToString());
             headers.Add("Content-Type", contentType);
             headers.Add("Content-Length", contentLength.ToString());
-        }
-
-
-        public void FillBody(Byte[] inputBytes)
-        {
             bodyBytes = inputBytes.ToArray();
         }
 

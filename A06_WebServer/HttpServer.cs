@@ -162,19 +162,18 @@ namespace A06_WebServer
                 messageLength = (int)fs.Length;
                 
                 //make Response object for text
-                returnResponse = new Response(1.1, 200, mimeType, messageLength);
+                
 
                 BinaryReader reader = new BinaryReader(fs);
                 //Create an array of bytes equal in size to the length of the file stream
                 Byte[] bytes = new byte[fs.Length];
-
               
-                //Do a binaryread.read
-                reader.Read(bytes, 0, bytes.Length);
                 
-                //SendResponse(200, fileContents);
+                reader.Read(bytes, 0, bytes.Length);
 
-                returnResponse.FillBody(bytes);
+                returnResponse = new Response(1.1, 200, mimeType, messageLength, bytes);
+
+               // returnResponse.FillBody(bytes);
                 NewSendResponse(returnResponse);
                 reader.Close();
                 fs.Close();
