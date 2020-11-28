@@ -143,6 +143,8 @@ namespace A06_WebServer
             //Format our user inputted string into an IPAddress
             IPAddress address = IPAddress.Parse(ipAddress);
 
+            
+
             //server creation
             HttpServer server = new HttpServer(path, address, port);
 
@@ -159,6 +161,7 @@ namespace A06_WebServer
 
             Console.WriteLine("any key to exit");
             Console.ReadKey();
+            server.Close();
             return 0;
         }
 
@@ -174,7 +177,7 @@ namespace A06_WebServer
          */
         static int ParseArg(string argument)
         {
-            if (argument.Contains("webroot"))
+            if (argument.Contains("webRoot"))
             {
                 return 1;
             }

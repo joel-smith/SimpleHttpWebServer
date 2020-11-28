@@ -139,6 +139,7 @@ namespace A06_WebServer
 
             //Grab the file we're searching for
             string targetFile = Request.startLine.Target;
+            
 
             //Theoretically this should get the file type extension
             //but cosmic rays so...
@@ -146,7 +147,14 @@ namespace A06_WebServer
             Console.WriteLine(mimeType);
             //Gotta grab the -webroot here somehow. Will figure that out later
             //Maybe include the -webroot in the Request object?
-            string filePath = @"C:\webServerResources\" + targetFile;
+
+            Console.WriteLine("webRoot is" + webRoot + "\n");
+
+            //*******************************************************************
+            // WHY WONT THE PATH CARRY THROUGH, NEEDS TO BE HARDCODED RN
+            //********************************************************************
+            string filePath = webRoot + @"/" + targetFile;
+            Console.WriteLine("filePath is " + filePath + "\n");
 
             if (File.Exists(filePath) == false) //The file doesn't exist, give them the classic 404
             {
@@ -185,18 +193,15 @@ namespace A06_WebServer
             }
         }
 
-        /// <summary>
-        /// Is this the sending back of a response?
-        /// Consider changing the name to SendResponse()?
-        /// </summary>
-        public void SendRequest()
-        {
-            //request object/class needed maybe?
-        }
 
         public void SendResponseObject(Response serverSend)
         {
+            NetworkStream stream = new NetworkStream(clientSocket);
+            StreamWriter sw = new StreamWriter(stream);
+            string returnResponse = serverSend.WholeMessage();
 
+            Byte[] responseBytes = Encoding.UTF8.GetBytes(returnResponse);
+            clientSocket.Send(responseBytes);
         }
 
         /// I created this so I don't hijack SendRequest in case that was meant to do something different
@@ -207,9 +212,6 @@ namespace A06_WebServer
             //NetworkStream into a streamwriter back to the client?
             NetworkStream stream = new NetworkStream(clientSocket);
             StreamWriter sw = new StreamWriter(stream);
-
-
-
 
             //This is probably real messy, sorry. Just "coding out loud"
             sw.WriteLine($"HTTP/1.1 {statusCode} ");
@@ -247,7 +249,7 @@ namespace A06_WebServer
         public void Close()
         {
             serverListener.Stop();
-            clientSocket.Close();
+            
             
             serverLog.Log("Closing server");
         }
