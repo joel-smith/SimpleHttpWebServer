@@ -123,7 +123,7 @@ namespace A06_WebServer
                     target = target.Substring(index);
 
                     //Log the http verb and the requested resource
-                    serverLog.Log($"HTTP Verb {verb} Resource: {target}");
+                    serverLog.Log($"[REQUEST] HTTP Verb {verb} Resource: {target}");
 
                     //webRoot works here
                     Request browserRequest = new Request(target, webRoot);
@@ -214,20 +214,27 @@ namespace A06_WebServer
             string dateString = DateTime.Now.ToString();
 
             //Send just the header to the client. This allows us to send back negative status codes too.
-            string message = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
-            Byte[] msg = Encoding.UTF8.GetBytes(message);
+            string header = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
+            Byte[] msg = Encoding.UTF8.GetBytes(header);
             clientSocket.Send(msg);
 
+            //Send the actual contents of the webpage requested
+            string contents = response;
+            msg = Encoding.UTF8.GetBytes(contents);
+            clientSocket.Send(msg);
+            
             if (statusCode != 200)
             {
                 //If we're in this block, there was an issue. We need only to log the status code.
-                serverLog.Log($"{ statusCode }"); //Log the failed status code
+                serverLog.Log($"[RESPONSE] { statusCode }"); //Log the failed status code
             }
-
-            //Send the actual contents of the webpage requested
-            message = response;
-            msg = Encoding.UTF8.GetBytes(message);
-            clientSocket.Send(msg);
+            else
+            {
+                //Remove our carriage returns/new lines so we can log all in one nice tidy line
+                header = header.Replace("\n", " ");
+                header = header.Replace("\r", "");
+                serverLog.Log($"[RESPONSE] {header}");
+            }
 
         }
 
