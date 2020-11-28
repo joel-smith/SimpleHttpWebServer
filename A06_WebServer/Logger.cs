@@ -71,6 +71,8 @@ namespace A06_WebServer
                     }
                     else
                     {
+                        //If file exists, delete it so we can start new log
+                        File.Delete(logPath);
                         filePath = logPath;
                         this.logValid = true;
                     }
