@@ -84,6 +84,67 @@ namespace A06_WebServer
     }
 
     /// <summary>
+    /// NewResponse, KISS keep it simple, store all headers in <string, string> dictionary
+    /// </summary>
+    public class NewResponse : HttpMessage
+    {
+
+        public ResponseStartLine startLine;
+        public Dictionary<string, string> headers = new Dictionary<string, string>();
+
+        public Byte[] bodyBytes;
+
+        /// <summary>
+        /// to be used for NewParseRequest() to fill
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="status"></param>
+        /// <param name="contentType"></param>
+        /// <param name="contentLength"></param>
+        public NewResponse(double version, int status, string contentType, int contentLength)
+        {
+            startLine.Version = version;
+            startLine.Code = status;
+            startLine.Text = "heck yeah brotha";
+
+            headers.Add("Date", DateTime.Now.ToString());
+            headers.Add("Content-Type", contentType);
+            headers.Add("Content-Length", contentLength.ToString());
+        }
+
+
+
+        public void FillBody(Byte[] inputBytes)
+        {
+            //for (int i = 0; i < inputBytes.Length; i++)
+            //{
+            //    bodyBytes[i] = inputBytes[i];
+            //}
+
+            bodyBytes = inputBytes.ToArray();
+        }
+
+
+
+
+        //do we even need these overrides??
+        public override string Headers()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string TopLine()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string WholeMessage()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
     /// generic Response class, built to handle headers of 
     /// Date, Server, Content-Type, Content-Length
     /// </summary>

@@ -129,9 +129,66 @@ namespace A06_WebServer
                     Request browserRequest = new Request(target, webRoot);
 
                     //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
-                    ParseRequest(browserRequest);
+                    NewParseRequest(browserRequest);
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputReq"></param>
+        public void NewParseRequest(Request inputReq)
+        {
+            //declare our return
+            NewResponse returnResponse;
+            
+            //Grab the file we're searching for
+            string targetFile = inputReq.startLine.Target;
+            string mimeType = MimeMapping.GetMimeMapping(targetFile);
+            string filePath = webRoot + @"/" + targetFile;
+            int messageLength;
+
+            if (File.Exists(filePath) == false) //The file doesn't exist, classic 404
+            {
+                //Return a 404 here to browser
+                SendResponse(404, "<h2>404: Not Found</h2>");
+            }
+            else if (mimeType.Contains("text")) //Filter here if contains text
+            {
+                //get the length
+                FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                messageLength = (int)fs.Length;
+                
+                //make NewResponse object for text
+                returnResponse = new NewResponse(1.1, 200, mimeType, messageLength);
+
+                BinaryReader reader = new BinaryReader(fs);
+                //Create an array of bytes equal in size to the length of the file stream
+                Byte[] bytes = new byte[fs.Length];
+
+              
+                //Do a binaryread.read
+                reader.Read(bytes, 0, bytes.Length);
+                
+                //SendResponse(200, fileContents);
+
+                returnResponse.FillBody(bytes);
+                NewSendResponse(returnResponse);
+                reader.Close();
+                fs.Close();
+            }
+            else if (mimeType.Contains("image"))
+            {
+
+            }
+            else
+            {
+                SendResponse(415, "<h2>415: Unsupported Media Type</h2>"); // Unsupported Media Type
+            }
+
+                //int status
+                //int contentLength
         }
 
         /// <summary>
@@ -175,7 +232,7 @@ namespace A06_WebServer
                 //Do a binaryread.read
                 while ((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
                 {
-                    fileContents += Encoding.ASCII.GetString(bytes, 0, byteCountLoop);
+                    fileContents += Encoding.Default.GetString(bytes, 0, byteCountLoop);
                     totalBytesRead += byteCountLoop;
                 }
                 SendResponse(200, fileContents);
@@ -184,7 +241,26 @@ namespace A06_WebServer
             }
             else if (mimeType.Contains("image"))
             {
-                //Enter if requested file is image (jpeg or gif)
+                int totalBytesRead = 0;
+                FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+
+                BinaryReader reader = new BinaryReader(fs);
+                //Create an array of bytes equal in size to the length of the file stream
+                Byte[] bytes = new byte[fs.Length];
+                
+                int byteCountLoop;
+                string fileContents = "";
+                //Do a binaryread.read
+                while ((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
+                {
+                    fileContents += Encoding.Default.GetString(bytes, 0, byteCountLoop);
+                    totalBytesRead += byteCountLoop;
+                }
+                SendResponse(200, fileContents);
+                reader.Close();
+                fs.Close();
+
+                
             }
             else
             {
@@ -194,14 +270,43 @@ namespace A06_WebServer
         }
 
 
-        public void SendResponseObject(Response serverSend)
+        public void NewSendResponse(NewResponse serverSend)
         {
-            NetworkStream stream = new NetworkStream(clientSocket);
-            StreamWriter sw = new StreamWriter(stream);
-            string returnResponse = serverSend.WholeMessage();
+            //NetworkStream stream = new NetworkStream(clientSocket);
+            //StreamWriter sw = new StreamWriter(stream);
+            //string returnResponse = serverSend.WholeMessage();
 
-            Byte[] responseBytes = Encoding.UTF8.GetBytes(returnResponse);
-            clientSocket.Send(responseBytes);
+            //Byte[] responseBytes = Encoding.UTF8.GetBytes(returnResponse);
+            //clientSocket.Send(responseBytes);
+
+
+            
+            int contentLength = Int32.Parse(serverSend.headers["Content-Length"]);
+            int statusCode = serverSend.startLine.Code;
+            
+            string dateString = DateTime.Now.ToString();
+
+            //Send just the header to the client. This allows us to send back negative status codes too.
+            string header = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
+            Byte[] msg = Encoding.UTF8.GetBytes(header);
+            clientSocket.Send(msg);
+
+            //Send the actual contents of the webpage requested
+            clientSocket.Send(serverSend.bodyBytes);
+
+            if (statusCode != 200)
+            {
+                //If we're in this block, there was an issue. We need only to log the status code.
+                serverLog.Log($"[RESPONSE] { statusCode }"); //Log the failed status code
+            }
+            else
+            {
+                //Remove our carriage returns/new lines so we can log all in one nice tidy line
+                header = header.Replace("\n", " ");
+                header = header.Replace("\r", "");
+                serverLog.Log($"[RESPONSE] {header}");
+            }
+            clientSocket.Close(); //needed to have repeated requests
         }
 
         /// I created this so I don't hijack SendRequest in case that was meant to do something different
