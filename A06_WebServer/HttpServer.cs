@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* FILE: HttpServer.cs
+ * DATE: Nov 2020
+ * AUTHORS: Joel Smith & Ian Ewing
+ * PROJECT: WDD A06 Web Server
+ * DESCRIPTION: main server logic and functionality here
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -145,14 +152,9 @@ namespace A06_WebServer
             //but cosmic rays so...
             string mimeType = MimeMapping.GetMimeMapping(targetFile);
             Console.WriteLine(mimeType);
-            //Gotta grab the -webroot here somehow. Will figure that out later
-            //Maybe include the -webroot in the Request object?
 
             Console.WriteLine("webRoot is" + webRoot + "\n");
 
-            //*******************************************************************
-            // WHY WONT THE PATH CARRY THROUGH, NEEDS TO BE HARDCODED RN
-            //********************************************************************
             string filePath = webRoot + @"/" + targetFile;
             Console.WriteLine("filePath is " + filePath + "\n");
 
