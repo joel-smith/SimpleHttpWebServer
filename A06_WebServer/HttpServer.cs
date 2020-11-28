@@ -59,7 +59,7 @@ namespace A06_WebServer
                 serverListener.Start();
                 Thread thread = new Thread(new ThreadStart(GetRequest));
                 thread.Start();
-               //set Listener on Thread
+                //set Listener on Thread
             }
             catch (Exception e)
             {
@@ -91,7 +91,7 @@ namespace A06_WebServer
                 {
                     //Array of bytes to hold data received
                     Byte[] bytes = new byte[1024];
-                    
+
                     //Store the data in the new bytes array
                     clientSocket.Receive(bytes, bytes.Length, 0);
 
@@ -105,7 +105,7 @@ namespace A06_WebServer
                     if (verb != "GET")
                     {
                         statusCode = 405; //405: Method not allowed
-                        SendResponse(statusCode, null);
+                        SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
                         clientSocket.Close(); //This might need to come out?
                         return; //Maybe find a different way to do this? break?
                     }
@@ -145,12 +145,10 @@ namespace A06_WebServer
 
             //Grab the file we're searching for
             string targetFile = inputReq.startLine.Target;
-            
 
-            //Theoretically this should get the file type extension
-            //but cosmic rays so...
+            //This will grab the mime type of the requested content
             string mimeType = MimeMapping.GetMimeMapping(targetFile);
-            
+
             Console.WriteLine(mimeType);
 
             Console.WriteLine("webRoot is" + webRoot + "\n");
@@ -161,7 +159,7 @@ namespace A06_WebServer
             if (File.Exists(filePath) == false) //The file doesn't exist, give them the classic 404
             {
                 //Return a 404 here to browser
-                SendResponse(404, null);
+                SendResponse(404, "<h2>404: Not Found</h2>");
             }
             else if (mimeType.Contains("text")) //Filter here if contains text
             {
@@ -175,7 +173,7 @@ namespace A06_WebServer
                 int byteCountLoop;
                 string fileContents = "";
                 //Do a binaryread.read
-                while((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
+                while ((byteCountLoop = reader.Read(bytes, 0, bytes.Length)) != 0)
                 {
                     fileContents += Encoding.ASCII.GetString(bytes, 0, byteCountLoop);
                     totalBytesRead += byteCountLoop;
@@ -191,7 +189,7 @@ namespace A06_WebServer
             else
             {
                 //This will catch things like .aspx requests
-                SendResponse(415, null); // Unsupported Media Type
+                SendResponse(415, "<h2>415: Unsupported Media Type</h2>"); // Unsupported Media Type
             }
         }
 
@@ -211,38 +209,26 @@ namespace A06_WebServer
         /// takes in the status code and other stuff? string response holding the actual constructed response?
         public void SendResponse(int statusCode, string response)
         {
-            //NetworkStream into a streamwriter back to the client?
-            NetworkStream stream = new NetworkStream(clientSocket);
-            StreamWriter sw = new StreamWriter(stream);
+            //Only grab the string length if there's actual content to send to client
+            int contentLength = response.Length;
+            string dateString = DateTime.Now.ToString();
 
-            //This is probably real messy, sorry. Just "coding out loud"
-            sw.WriteLine($"HTTP/1.1 {statusCode} ");
+            //Send just the header to the client. This allows us to send back negative status codes too.
+            string message = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
+            Byte[] msg = Encoding.UTF8.GetBytes(message);
+            clientSocket.Send(msg);
 
             if (statusCode != 200)
             {
                 //If we're in this block, there was an issue. We need only to log the status code.
-                serverLog.Log($"{ statusCode }"); //Status 405 Method Not Allowed
-                return; //Probably wrong? But kick out of SendResponse
+                serverLog.Log($"{ statusCode }"); //Log the failed status code
             }
-            int contentLength = response.Length;
-            string dateString = DateTime.Now.ToString();
 
-            //sw.WriteLine($"Content-type:text");
-            ////sw.WriteLine($"Content-Type:{contentType}"); //Will need to either be parsed from string response, or passed in separately?
-            //sw.WriteLine($"Server:JSmith-IEwing-Server9000"); //This should always be the same?
-            //sw.WriteLine($"Content-Length:{contentLength}"); //This should be easy to grab? SizeOf response?
-            //sw.WriteLine($"Date:{dateString}");
-
-            //Byte[] msg = Encoding.UTF8.GetBytes("HTTP/1.1 200\r\n");
-            //clientSocket.Send(msg);
-            //msg = Encoding.UTF8.GetBytes($"Content-Type:text\r\nServer:JSmmith-IEwing-Server9000\r\nContent-Length:{contentLength}\r\nDate:{dateString}\r\n");
-            //clientSocket.Send(msg);
-            //msg = Encoding.UTF8.GetBytes(response);
-            //clientSocket.Send(msg);
-
-            string message = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n" + response;
-            Byte[] msg = Encoding.UTF8.GetBytes(message);
+            //Send the actual contents of the webpage requested
+            message = response;
+            msg = Encoding.UTF8.GetBytes(message);
             clientSocket.Send(msg);
+
         }
 
         /// <summary>
@@ -251,8 +237,8 @@ namespace A06_WebServer
         public void Close()
         {
             serverListener.Stop();
-            
-            
+
+
             serverLog.Log("Closing server");
         }
 
