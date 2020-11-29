@@ -88,71 +88,60 @@ namespace A06_WebServer
             {
                try { 
                 
-                //Establish a socket and listen for connections
-                clientSocket = serverListener.AcceptSocket();
+               //Establish a socket and listen for connections
+               clientSocket = serverListener.AcceptSocket();
 
-                if (clientSocket.Connected)
-                {
-                    //Array of bytes to hold data received
-                    Byte[] bytes = new byte[1024];
+               if (clientSocket.Connected)
+               {
+                   //Array of bytes to hold data received
+                   Byte[] bytes = new byte[1024];
 
-                    //Store the data in the new bytes array
-                    clientSocket.Receive(bytes, bytes.Length, 0);
+                   //Store the data in the new bytes array
+                   clientSocket.Receive(bytes, bytes.Length, 0);
 
-                    //Translate the received bytes into a HTTP request string
-                    string buffer = Encoding.ASCII.GetString(bytes);
+                   //Translate the received bytes into a HTTP request string
+                   string buffer = Encoding.ASCII.GetString(bytes);
 
-                    ////Grab the HTTP verb from the request and store it
-                    //verb = buffer.Substring(0, 3);
+                   //Check to see if GET appears anywhere in the Request header.
+                   if (buffer.IndexOf("GET") == -1)
+                   {           
+                         statusCode = 405; //405: Method not allowed
+                         SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
+                         clientSocket.Close(); //This might need to come out?
+                         break;
+                   }
+                   else
+                   {
+                       //Grab the HTTP method and store it. 
+                       verb = buffer.Substring(0, 3); //3 = num of characters in GET
+                   }
+                   //Grab the location of HTTP within the request string
+                   index = buffer.IndexOf("HTTP");
 
-                    ////Check the HTTP verb. If not GET, send back response, log, shut down.
-                    //if (verb != "GET")
-                    //{
-                    //    statusCode = 405; //405: Method not allowed
-                    //    SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
-                    //    clientSocket.Close(); //This might need to come out?
-                    //    break;
-                    //}
+                   //Grab the 8 characters comprising the HTTP version
+                   version = buffer.Substring(index, 8);
 
-                    if (buffer.IndexOf("GET") == -1)
-                    {
-                        statusCode = 405;
-                        SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
-                        clientSocket.Close();
-                        break;
-                    }
-                    else
-                    {
-                        //Grab the HTTP method and store it. 
-                        verb = buffer.Substring(0, 3); //3 = num of characters in GET
-                    }
-                    //Grab the location of HTTP within the request string
-                    index = buffer.IndexOf("HTTP");
+                   //Will grab a substring from beginning to just before position of the HTTP version
+                   target = buffer.Substring(0, (index - 1));
+                   //Grab the index of the last forward slash + 1
+                   index = (target.LastIndexOf("/") + 1);
+                   //This will grab the string beginning with the first character of the filename
+                   target = target.Substring(index);
 
-                    //Grab the 8 characters comprising the HTTP version
-                    version = buffer.Substring(index, 8);
+                   //Log the http verb and the requested resource
+                   serverLog.Log($"[REQUEST] HTTP Verb {verb} Resource: {target}");
 
-                    //Will grab a substring from beginning to just before position of the HTTP version
-                    target = buffer.Substring(0, (index - 1));
-                    //Grab the index of the last forward slash + 1
-                    index = (target.LastIndexOf("/") + 1);
-                    //This will grab the string beginning with the first character of the filename
-                    target = target.Substring(index);
+                   //webRoot works here
+                   Request browserRequest = new Request(target, webRoot);
 
-                    //Log the http verb and the requested resource
-                    serverLog.Log($"[REQUEST] HTTP Verb {verb} Resource: {target}");
-
-                    //webRoot works here
-                    Request browserRequest = new Request(target, webRoot);
-
-                    //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
-                    ParseRequest(browserRequest);
-                }
-                }
-                catch (Exception e)
-                {
-                    serverLog.Log($"[ERROR] {e.ToString()}");
-                }
+                   //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
+                   ParseRequest(browserRequest);
+               }
+               }
+               catch (Exception e)
+               {
+                   serverLog.Log($"[ERROR] {e.ToString()}");
+               }
             }
         }
 
@@ -171,17 +160,20 @@ namespace A06_WebServer
             string mimeType = MimeMapping.GetMimeMapping(targetFile);
             string filePath = webRoot + @"/" + targetFile;
             int messageLength;
+            int statusCode;
 
             if (File.Exists(filePath) == false) //The file doesn't exist, classic 404
             {
+                statusCode = 404;
                 //Return a 404 here to browser
-                SendResponse(404, "<h2>404: Not Found</h2>");
+                SendResponse(statusCode, "<h2>404: Not Found</h2>");
             }
             else if (mimeType.Contains("text") || mimeType.Contains("image")) //Filter here if contains text
             {
                 //get the length
                 FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                 messageLength = (int)fs.Length;
+                statusCode = 200; //Sucessful request
                 
                 //make Response object for text
                 
@@ -189,20 +181,22 @@ namespace A06_WebServer
                 BinaryReader reader = new BinaryReader(fs);
                 //Create an array of bytes equal in size to the length of the file stream
                 Byte[] bytes = new byte[fs.Length];
-              
-                
+
                 reader.Read(bytes, 0, bytes.Length);
 
-                returnResponse = new Response(1.1, 200, mimeType, messageLength, bytes);
+                //Create an object to hold all pertinent response information
+                returnResponse = new Response(1.1, statusCode, mimeType, messageLength, bytes);
 
                // returnResponse.FillBody(bytes);
                 NewSendResponse(returnResponse);
+                //Close all our resources
                 reader.Close();
                 fs.Close();
             }
             else
             {
-                SendResponse(415, "<h2>415: Unsupported Media Type</h2>"); // Unsupported Media Type
+                statusCode = 415;
+                SendResponse(statusCode, "<h2>415: Unsupported Media Type</h2>"); // Unsupported Media Type
             }
 
         }
@@ -214,12 +208,13 @@ namespace A06_WebServer
         /// <param name="serverSend">the response to send back</param>
         public void NewSendResponse(Response serverSend)
         {
+            //Grab local copies of information needed to send our response
             double version = serverSend.startLine.Version;
             int contentLength = Int32.Parse(serverSend.headers["Content-Length"]);
             string contentType = serverSend.headers["Content-Type"];
             int statusCode = serverSend.startLine.Code;
             
-            string dateString = DateTime.Now.ToString();
+            string dateString = DateTime.Now.ToString("ddd, dd MMM yyyy H:mm:ss K");
 
             //Send just the header to the client. This allows us to send back negative status codes too.
             string header = $"HTTP/{version} {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: {contentType}\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
@@ -287,8 +282,9 @@ namespace A06_WebServer
         {
             Run.Go = false;
 
-            serverListener.Stop();
+            clientSocket.Close();
 
+            serverListener.Stop();
 
             serverLog.Log("[SERVER STOPPED]");
         }

@@ -145,8 +145,6 @@ namespace A06_WebServer
             //Format our user inputted string into an IPAddress
             IPAddress address = IPAddress.Parse(ipAddress);
 
-            
-
             //server creation
             HttpServer server = new HttpServer(path, address, port);
 
