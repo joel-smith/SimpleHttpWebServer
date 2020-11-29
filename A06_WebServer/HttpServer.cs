@@ -28,8 +28,10 @@ namespace A06_WebServer
         readonly IPAddress webIP;
         readonly int webPort;
 
+        //Will allow us to log any pertinent events
         public Logger.HttpServerLogger serverLog;
 
+        //Both of these exist to allow for connection of client-browser
         private static TcpListener serverListener;
         Socket clientSocket;
 
@@ -39,6 +41,7 @@ namespace A06_WebServer
         /// <param name="serverRoot">command line arg for root of server directory</param>
         /// <param name="serverIP">command line arg as IPAddress for serverIP </param>
         /// <param name="serverPort">port number for server</param>
+        /// <param name="serverLog">directory for all of our server logs to be written</param>
         public HttpServer(string serverRoot, IPAddress serverIP, int serverPort)
         {
             webRoot = serverRoot;
@@ -63,10 +66,9 @@ namespace A06_WebServer
             }
             catch (Exception e)
             {
-                //Should log our exception that was thrown
+                //Log any exception that was thrown
                 serverLog.Log("Exception occured initializing TcpListener for Server : " + e.ToString());
             }
-
         }
 
         /*
@@ -76,11 +78,11 @@ namespace A06_WebServer
          */
         private void GetRequest()
         {
-            int index = 0;
-            string target = null;
-            string version = null;
-            string verb = null;
-            int statusCode = 0;
+            int index = 0; //Will allow us to grab substrings from input
+            string target = null; //The targeted file the user wants
+            string version = null; //HTTP version
+            string verb = null; //Method for data transmission
+            int statusCode = 0; //HTTP status codes
 
             while (Run.Go)
             {
@@ -97,19 +99,32 @@ namespace A06_WebServer
                     //Store the data in the new bytes array
                     clientSocket.Receive(bytes, bytes.Length, 0);
 
-                    //Translate the received bytes into the HTTP request
+                    //Translate the received bytes into a HTTP request string
                     string buffer = Encoding.ASCII.GetString(bytes);
 
-                    //Grab the HTTP verb from the request and store it
-                    verb = buffer.Substring(0, 3);
+                    ////Grab the HTTP verb from the request and store it
+                    //verb = buffer.Substring(0, 3);
 
-                    //Check the HTTP verb. If not get, send back response, log, shut down.
-                    if (verb != "GET")
+                    ////Check the HTTP verb. If not GET, send back response, log, shut down.
+                    //if (verb != "GET")
+                    //{
+                    //    statusCode = 405; //405: Method not allowed
+                    //    SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
+                    //    clientSocket.Close(); //This might need to come out?
+                    //    break;
+                    //}
+
+                    if (buffer.IndexOf("GET") == -1)
                     {
-                        statusCode = 405; //405: Method not allowed
+                        statusCode = 405;
                         SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
-                        clientSocket.Close(); //This might need to come out?
-                        return; //Maybe find a different way to do this? break?
+                        clientSocket.Close();
+                        break;
+                    }
+                    else
+                    {
+                        //Grab the HTTP method and store it. 
+                        verb = buffer.Substring(0, 3); //3 = num of characters in GET
                     }
                     //Grab the location of HTTP within the request string
                     index = buffer.IndexOf("HTTP");
