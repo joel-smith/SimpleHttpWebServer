@@ -1,4 +1,13 @@
-﻿using System;
+﻿/* FILE: HttpMessage.cs
+ * DATE: Nov 2020
+ * AUTHORS: Joel Smith & Ian Ewing
+ * PROJECT: WDD A06 Web Server
+ * DESCRIPTION: HttpMessage base/abstract classes and Response/Request objects
+ * for easy access to data.
+ */
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,61 +22,17 @@ namespace A06_WebServer
     /// </summary>
     public abstract class HttpMessage
     {
-        /// <summary>
-        /// returns the topline or startline for the message, format varies
-        /// </summary>
-        /// <returns>The TopLine as a string</returns>
-        public abstract string TopLine();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>returns all the headers the object has, as strings</returns>
-        public abstract string Headers();
-
-        //would this be useful?
-        public abstract string WholeMessage();
-
-        public string Body;
+        public Dictionary<string, string> headers = new Dictionary<string, string>();
+        public Byte[] bodyBytes;
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
     public class Request : HttpMessage
-    {
-        public override string TopLine()
-        {
-            return startLine.ToString();
-        }
-
-        /// <summary>
-        /// gives you the headers from that dictionary in a nice way
-        /// </summary>
-        /// <returns>string containing the headers</returns>
-        public override string Headers()
-        {
-            string outputString = "";
-            foreach(KeyValuePair<string, string> key in headers)
-            {
-                outputString = outputString + key.Key + key.Value + "\n";
-            }
-
-            return outputString;
-        }
-
-        /// <summary>
-        /// returns the entire Request as a nicely formatted string
-        /// </summary>
-        /// <returns></returns>
-        public override string WholeMessage()
-        {
-            string everything = "";
-
-            everything = this.TopLine() + "\n" + this.Headers() + "\n" + Body;
-
-            return everything;
-        }
-
-        public RequestStartLine startLine;
-        public Dictionary<string, string> headers = new Dictionary<string, string>();
+    {      
+        public RequestStartLine startLine;  
+       
 
         /// <summary>
         /// constructor to make a GET HTTP/1.1 request from target and host
@@ -84,67 +49,33 @@ namespace A06_WebServer
     }
 
     /// <summary>
-    /// generic Response class, built to handle headers of 
-    /// Date, Server, Content-Type, Content-Length
+    /// Response, KISS keep it simple, store all headers in <string, string> dictionary
     /// </summary>
-    public class Response : HttpMessage 
+    public class Response : HttpMessage
     {
-        //status line
-        //example: "HTTP/1.1 404 Not Found"
-        public override string TopLine()
-        {
-            return startLine.ToString();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>string with formatted headers</returns>
-        public override string Headers()
-        {
-            string outputString = "Date:%20" + Date.ToString() + "%0AServer:%20" + Server + "%0A%20Content-Type:%20" + ContentType.ToString() + "%0A%20Content-Length:%20" + ContentLength;
-
-            return outputString;
-        }
-
-        public override string WholeMessage()
-        {
-            string everything = "";
-
-            everything = this.TopLine() + "%0A" + this.Headers() + "%0A" + this.Body;
-
-            return everything;
-        
-        }
-
         public ResponseStartLine startLine;
 
-        //headers, required content-type, content-length, server, date
-        public HttpContentType ContentType;
-        public int ContentLength;
-        public string Server;
-        public DateTime Date;
 
-        //body
-        
-
-
-        //constructor to be used 
-        //need to set body after in the server
-       
         /// <summary>
-        /// constructor intended to be used to return 
+        /// to be used for NewParseRequest() to fill
         /// </summary>
-        /// <param name="contentType">struct representing MIME type and extension for response message</param>
-        /// <param name="contentLength">integer representing bytes in the message</param>
-        /// <param name="server">string representing hostname or some info about the server</param>
-        public Response(HttpContentType contentType, int contentLength, string server)
+        /// <param name="version"></param>
+        /// <param name="status"></param>
+        /// <param name="contentType"></param>
+        /// <param name="contentLength"></param>
+        /// <param name="inputBytes"></param>
+        public Response(double version, int status, string contentType, int contentLength, Byte[] inputBytes)
         {
-            ContentType = contentType;
-            ContentLength = contentLength;
-            Server = server;
-            Date = DateTime.Now;
+            startLine.Version = version;
+            startLine.Code = status;
+            startLine.Text = "heck yeah brotha";
+
+            headers.Add("Date", DateTime.Now.ToString());
+            headers.Add("Content-Type", contentType);
+            headers.Add("Content-Length", contentLength.ToString());
+            bodyBytes = inputBytes.ToArray();
         }
+
     }
 
     /// <summary>
@@ -186,17 +117,4 @@ namespace A06_WebServer
         
     }
 
-    public struct HttpContentType
-    {
-        public HttpContentType(string media, string extension)
-        {
-            Media = media;
-            Extension = extension;
-        }
-
-        public string Media { get; set; } //MIME type of the resource (text, image)
-        public string Extension { get; set; } //File extension (txt, html)
-
-        public override string ToString() => $"{Media}" + "/" + "{Extension}";
-    }
 }

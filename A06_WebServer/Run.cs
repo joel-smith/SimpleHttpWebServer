@@ -73,6 +73,8 @@ namespace A06_WebServer
 {
     class Run
     {
+        public static volatile bool Go = true;
+        
         static int Main(string[] args)
         {
             string path = null;
