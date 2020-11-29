@@ -266,7 +266,7 @@ namespace A06_WebServer
             serverListener.Stop();
 
 
-            serverLog.Log("Closing server");
+            serverLog.Log("[SERVER STOPPED]");
         }
 
 
