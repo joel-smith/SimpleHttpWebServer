@@ -1,4 +1,13 @@
-﻿using System;
+﻿/* FILE: HttpMessage.cs
+ * DATE: Nov 2020
+ * AUTHORS: Joel Smith & Ian Ewing
+ * PROJECT: WDD A06 Web Server
+ * DESCRIPTION: HttpMessage base/abstract classes and Response/Request objects
+ * for easy access to data.
+ */
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
