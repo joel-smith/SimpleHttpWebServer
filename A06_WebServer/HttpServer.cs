@@ -82,8 +82,10 @@ namespace A06_WebServer
             string verb = null;
             int statusCode = 0;
 
-            while (true)
+            while (Run.Go)
             {
+               try { 
+                
                 //Establish a socket and listen for connections
                 clientSocket = serverListener.AcceptSocket();
 
@@ -130,6 +132,11 @@ namespace A06_WebServer
 
                     //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
                     ParseRequest(browserRequest);
+                }
+                }
+                catch (Exception e)
+                {
+                    serverLog.Log($"[ERROR] {e.ToString()}");
                 }
             }
         }
@@ -263,6 +270,8 @@ namespace A06_WebServer
         /// </summary>
         public void Close()
         {
+            Run.Go = false;
+
             serverListener.Stop();
 
 
