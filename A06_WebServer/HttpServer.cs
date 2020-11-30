@@ -88,66 +88,68 @@ namespace A06_WebServer
 
             while (Run.Go)
             {
-               try { 
-                
-               //Establish a socket and listen for connections
-               clientSocket = serverListener.AcceptSocket();
+                try
+                {
 
-               if (clientSocket.Connected)
-               {
-                   //Array of bytes to hold data received
-                   Byte[] bytes = new byte[1024];
+                    //Establish a socket and listen for connections
+                    clientSocket = serverListener.AcceptSocket();
 
-                   //Store the data in the new bytes array
-                   clientSocket.Receive(bytes, bytes.Length, 0);
+                    if (clientSocket.Connected)
+                    {
+                        //Array of bytes to hold data received
+                        Byte[] bytes = new byte[1024];
 
-                   //Translate the received bytes into a HTTP request string
-                   string buffer = Encoding.ASCII.GetString(bytes);
+                        //Store the data in the new bytes array
+                        clientSocket.Receive(bytes, bytes.Length, 0);
 
-                   //Check to see if GET appears anywhere in the Request header.
-                   if (buffer.IndexOf("GET") == -1)
-                   {           
-                            statusCode = 405; //405: Method not allowed
-                            string errorMsg = "<h2>405: Method Not Allowed</h2>";
-                            int length = errorMsg.Length;
-                            Byte[] byteMsg = Encoding.UTF8.GetBytes(errorMsg);
-                            errorResponse = new Response(1.1, statusCode, "text/html", length, byteMsg);
-                            SendResponse(errorResponse);
-                            clientSocket.Close(); //This might need to come out?
+                        //Translate the received bytes into a HTTP request string
+                        string buffer = Encoding.ASCII.GetString(bytes);
+
+                        //Check to make sure the request was using GET
+                        if (buffer.IndexOf("GET") == -1)
+                        {
+                            statusCode = 405;
+                            SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
+                            clientSocket.Close();
                             break;
-                   }
-                   else
-                   {
-                       //Grab the HTTP method and store it. 
-                       verb = buffer.Substring(0, 3); //3 = num of characters in GET
-                   }
-                   //Grab the location of HTTP within the request string
-                   index = buffer.IndexOf("HTTP");
+                        }
+                        else
+                        {
+                            //Grab the HTTP method and store it. 
+                            verb = buffer.Substring(0, 3); //3 = num of characters in GET
+                        }
+                        //Grab the location of HTTP within the request string
+                        index = buffer.IndexOf("HTTP");
 
-                   //Grab the 8 characters comprising the HTTP version
-                   version = buffer.Substring(index, 8);
+                        //Grab the 8 characters comprising the HTTP version
+                        version = buffer.Substring(index, 8);
 
-                   //Will grab a substring from beginning to just before position of the HTTP version
-                   target = buffer.Substring(0, (index - 1));
-                   //Grab the index of the last forward slash + 1
-                   index = (target.LastIndexOf("/") + 1);
-                   //This will grab the string beginning with the first character of the filename
-                   target = target.Substring(index);
+                        //Will grab a substring from beginning to just before position of the HTTP version
+                        target = buffer.Substring(0, (index - 1));
+                        //Grab the index of the last forward slash + 1
+                        index = (target.LastIndexOf("/") + 1);
+                        //This will grab the string beginning with the first character of the filename
+                        target = target.Substring(index);
 
-                   //Log the http verb and the requested resource
-                   serverLog.Log($"[REQUEST] HTTP Verb {verb} Resource: {target}");
+                        //Log the http verb and the requested resource
+                        serverLog.Log($"[REQUEST] HTTP Verb {verb} Resource: {target}");
 
-                   //webRoot works here
-                   Request browserRequest = new Request(target, webRoot);
+                        //webRoot works here
+                        Request browserRequest = new Request(target, webRoot);
 
-                   //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
-                   ParseRequest(browserRequest);
-               }
-               }
-               catch (Exception e)
-               {
-                   serverLog.Log($"[ERROR] {e.ToString()}");
-               }
+                        //Pass our request string into ParseRequest to find out what directory and filetype to retrieve.
+                        ParseRequest(browserRequest);
+                    }
+                }
+                catch (SocketException ex)
+                {
+                    Thread.Sleep(5);
+                    serverLog.Log($"Ignore this");
+                }
+                catch (Exception e)
+                {
+                    serverLog.Log($"[ERROR] {e.ToString()}");
+                }
             }
         }
 
