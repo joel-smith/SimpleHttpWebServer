@@ -42,7 +42,6 @@ namespace A06_WebServer
 
             public HttpServerLogger(string logPath)
             {
-
                 //lock for safety
                 lock (lockObj)
                 {
@@ -78,6 +77,7 @@ namespace A06_WebServer
                     }
                 }
             }
+
 
 
             /// <summary>

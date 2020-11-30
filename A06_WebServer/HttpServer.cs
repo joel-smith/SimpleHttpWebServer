@@ -35,6 +35,8 @@ namespace A06_WebServer
         private static TcpListener serverListener;
         Socket clientSocket;
 
+        Response errorResponse;
+
         /// <summary>
         /// constructor for HttpServer that takes command line arguments
         /// </summary>
@@ -166,17 +168,24 @@ namespace A06_WebServer
             string mimeType = MimeMapping.GetMimeMapping(targetFile);
             string filePath = webRoot + @"/" + targetFile;
             int messageLength;
+            int statusCode;
 
             if (File.Exists(filePath) == false) //The file doesn't exist, classic 404
             {
-                //Return a 404 here to browser
-                SendResponse(404, "<h2>404: Not Found</h2>");
+                //Build a response object for the error message
+                statusCode = 404;
+                string error = "<h2>404: Not Found</h2>";
+                Byte[] bytes = Encoding.UTF8.GetBytes(error);
+                messageLength = error.Length;
+                errorResponse = new Response(1.1, statusCode, "text/html", messageLength, bytes);
+                SendResponse(errorResponse);
             }
             else if (mimeType.Contains("text") || mimeType.Contains("image")) //Filter here if contains text
             {
                 //get the length
                 FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                 messageLength = (int)fs.Length;
+                statusCode = 200; //Sucessful request
                 
                 //make Response object for text
                 
@@ -184,20 +193,27 @@ namespace A06_WebServer
                 BinaryReader reader = new BinaryReader(fs);
                 //Create an array of bytes equal in size to the length of the file stream
                 Byte[] bytes = new byte[fs.Length];
-              
-                
+
                 reader.Read(bytes, 0, bytes.Length);
 
-                returnResponse = new Response(1.1, 200, mimeType, messageLength, bytes);
+                //Create an object to hold all pertinent response information
+                returnResponse = new Response(1.1, statusCode, mimeType, messageLength, bytes);
 
                // returnResponse.FillBody(bytes);
-                NewSendResponse(returnResponse);
+                SendResponse(returnResponse);
+                //Close all our resources
                 reader.Close();
                 fs.Close();
             }
             else
             {
-                SendResponse(415, "<h2>415: Unsupported Media Type</h2>"); // Unsupported Media Type
+                //Build a response object for the error message
+                statusCode = 415;
+                string error = "<h2>415: Unsupported Media Type</h2>";
+                Byte[] bytes = Encoding.UTF8.GetBytes(error);
+                messageLength = error.Length;
+                errorResponse = new Response(1.1, statusCode, "text/html", messageLength, bytes);
+                SendResponse(errorResponse);
             }
 
         }
@@ -207,14 +223,15 @@ namespace A06_WebServer
         /// working sendresponse
         /// </summary>
         /// <param name="serverSend">the response to send back</param>
-        public void NewSendResponse(Response serverSend)
+        public void SendResponse(Response serverSend)
         {
+            //Grab local copies of information needed to send our response
             double version = serverSend.startLine.Version;
             int contentLength = Int32.Parse(serverSend.headers["Content-Length"]);
             string contentType = serverSend.headers["Content-Type"];
             int statusCode = serverSend.startLine.Code;
             
-            string dateString = DateTime.Now.ToString();
+            string dateString = DateTime.Now.ToString("ddd, dd MMM yyyy H:mm:ss K");
 
             //Send just the header to the client. This allows us to send back negative status codes too.
             string header = $"HTTP/{version} {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: {contentType}\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
@@ -224,6 +241,7 @@ namespace A06_WebServer
             //Send the actual contents of the webpage requested
             clientSocket.Send(serverSend.bodyBytes);
 
+            //We all good in the hood
             if (statusCode != 200)
             {
                 //If we're in this block, there was an issue. We need only to log the status code.
@@ -239,41 +257,7 @@ namespace A06_WebServer
             clientSocket.Close(); //needed to have repeated requests
         }
 
-        /// <summary>
-        /// currently only used for sending errors
-        /// </summary>
-        /// <param name="statusCode"></param>
-        /// <param name="response"></param>
-        public void SendResponse(int statusCode, string response)
-        {
-            //Only grab the string length if there's actual content to send to client
-            int contentLength = response.Length;
-            string dateString = DateTime.Now.ToString();
 
-            //Send just the header to the client. This allows us to send back negative status codes too.
-            string header = $"HTTP/1.1 {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: text/html\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
-            Byte[] msg = Encoding.UTF8.GetBytes(header);
-            clientSocket.Send(msg);
-
-            //Send the actual contents of the webpage requested
-            string contents = response;
-            msg = Encoding.UTF8.GetBytes(contents);
-            clientSocket.Send(msg);
-            
-            if (statusCode != 200)
-            {
-                //If we're in this block, there was an issue. We need only to log the status code.
-                serverLog.Log($"[RESPONSE] { statusCode }"); //Log the failed status code
-            }
-            else
-            {
-                //Remove our carriage returns/new lines so we can log all in one nice tidy line
-                header = header.Replace("\n", " ");
-                header = header.Replace("\r", "");
-                serverLog.Log($"[RESPONSE] {header}");
-            }
-
-        }
 
         /// <summary>
         /// clears up server to exit
@@ -282,8 +266,9 @@ namespace A06_WebServer
         {
             Run.Go = false;
 
-            serverListener.Stop();
+            clientSocket.Close();
 
+            serverListener.Stop();
 
             serverLog.Log("[SERVER STOPPED]");
         }

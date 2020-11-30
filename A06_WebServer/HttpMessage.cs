@@ -26,13 +26,14 @@ namespace A06_WebServer
         public Byte[] bodyBytes;
     }
     
+
+
     /// <summary>
     /// 
     /// </summary>
     public class Request : HttpMessage
     {      
         public RequestStartLine startLine;  
-       
 
         /// <summary>
         /// constructor to make a GET HTTP/1.1 request from target and host
@@ -46,36 +47,6 @@ namespace A06_WebServer
             startLine.Version = 1.1;
             headers.Add("HOST", hostGET);
         }
-    }
-
-    /// <summary>
-    /// Response, KISS keep it simple, store all headers in <string, string> dictionary
-    /// </summary>
-    public class Response : HttpMessage
-    {
-        public ResponseStartLine startLine;
-
-
-        /// <summary>
-        /// to be used for NewParseRequest() to fill
-        /// </summary>
-        /// <param name="version"></param>
-        /// <param name="status"></param>
-        /// <param name="contentType"></param>
-        /// <param name="contentLength"></param>
-        /// <param name="inputBytes"></param>
-        public Response(double version, int status, string contentType, int contentLength, Byte[] inputBytes)
-        {
-            startLine.Version = version;
-            startLine.Code = status;
-            startLine.Text = "heck yeah brotha";
-
-            headers.Add("Date", DateTime.Now.ToString());
-            headers.Add("Content-Type", contentType);
-            headers.Add("Content-Length", contentLength.ToString());
-            bodyBytes = inputBytes.ToArray();
-        }
-
     }
 
     /// <summary>
@@ -97,6 +68,38 @@ namespace A06_WebServer
         public override string ToString() => $"{Verb}" + " " + $"{Target}" + " HTTP/" + $"{Version}";
     }
 
+
+
+    /// <summary>
+    /// Response, KISS keep it simple, store all headers in <string, string> dictionary
+    /// </summary>
+    public class Response : HttpMessage
+    {
+        public ResponseStartLine startLine;
+
+        /// <summary>
+        /// to be used for NewParseRequest() to fill
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="status"></param>
+        /// <param name="contentType"></param>
+        /// <param name="contentLength"></param>
+        /// <param name="inputBytes"></param>
+        public Response(double version, int status, string contentType, int contentLength, Byte[] inputBytes)
+        {
+            startLine.Version = version;
+            startLine.Code = status;
+            startLine.Text = "heck yeah brotha";
+
+            headers.Add("Date", DateTime.Now.ToString());
+            headers.Add("Content-Type", contentType);
+            headers.Add("Content-Length", contentLength.ToString());
+            bodyBytes = inputBytes.ToArray();
+        }
+    }
+
+
+
     /// <summary>
     /// struct to be used within HttpResponse 
     /// </summary>
@@ -113,8 +116,6 @@ namespace A06_WebServer
         public int Code { get; set; }
         public string Text { get; set; }
 
-        public override string ToString() => "HTTP/" + $"{Version}, {Code}, {Text}";
-        
+        public override string ToString() => "HTTP/" + $"{Version}, {Code}, {Text}";   
     }
-
 }
