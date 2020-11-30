@@ -1,9 +1,11 @@
-﻿/* FILE: HttpMessage.cs
- * DATE: Nov 2020
- * AUTHORS: Joel Smith & Ian Ewing
- * PROJECT: WDD A06 Web Server
- * DESCRIPTION: HttpMessage base/abstract classes and Response/Request objects
- * for easy access to data.
+﻿/* 
+ * FILE:            HttpMessage.cs
+ * PROJECT:         WDD A06 Web Server
+ * AUTHORS:         Joel Smith & Ian Ewing
+ * DATE:            Nov 17, 2020
+ * DESCRIPTION:     This class contains the base and abstract HttpMessage class.
+ *                  It also contains our Response/Request objects that maintiain the
+ *                  message state inbetween methods.
  */
 
 
@@ -18,7 +20,7 @@ using System.Threading.Tasks;
 namespace A06_WebServer
 {
     /// <summary>
-    /// abstract class with basic functions to return TopLine of a message and 
+    /// abstract class with basic functions to return TopLine of a message
     /// </summary>
     public abstract class HttpMessage
     {
@@ -29,22 +31,25 @@ namespace A06_WebServer
 
 
     /// <summary>
-    /// 
+    /// Request class that contains various methods allowing us to populate a request object
+    /// for ease of data access.
     /// </summary>
     public class Request : HttpMessage
     {      
-        public RequestStartLine startLine;  
+        public RequestStartLine startLine;
 
         /// <summary>
         /// constructor to make a GET HTTP/1.1 request from target and host
         /// </summary>
         /// <param name="target"></param>
         /// <param name="host"></param>
+        /// <param name="verb"></param>
+        /// <param name="version"></param>
         public Request(string targetGET, string hostGET)
         {
-            startLine.Verb = "GET";
+            startLine.Verb = "GET"; //Hardcoded since our server only accepts GET
             startLine.Target = targetGET;
-            startLine.Version = 1.1;
+            startLine.Version = 1.1; //Hardocded as our server only uses HTTP/1.1
             headers.Add("HOST", hostGET);
         }
     }
