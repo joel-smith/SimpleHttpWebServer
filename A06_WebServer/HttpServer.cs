@@ -160,13 +160,22 @@ namespace A06_WebServer
         {
             //declare our return
             Response returnResponse;
-            
-            //Grab the file we're searching for
-            string targetFile = inputReq.startLine.Target;
-            string mimeType = MimeMapping.GetMimeMapping(targetFile);
-            string filePath = webRoot + @"/" + targetFile;
+            //Declare some integers that will be used
             int messageLength;
             int statusCode;
+
+            //Grab the file we're searching for
+            string targetFile = inputReq.startLine.Target;
+            //Checks if the there was no requested target URL
+            if (targetFile == "")
+            {
+                //If true, we direct the request to our index.
+                targetFile = "index.html";
+            }
+
+            //Grab our mime type and file path.
+            string mimeType = MimeMapping.GetMimeMapping(targetFile);
+            string filePath = webRoot + @"/" + targetFile;
 
             if (File.Exists(filePath) == false) //The file doesn't exist, classic 404
             {
@@ -263,8 +272,6 @@ namespace A06_WebServer
         public void Close()
         {
             Run.Go = false;
-
-            clientSocket.Close();
 
             serverListener.Stop();
 
