@@ -21,7 +21,7 @@ namespace A06_WebServer
     class Run
     {
         public static volatile bool Go = true;
-        
+
         static int Main(string[] args)
         {
             //Variables that will be used in Main
@@ -29,13 +29,14 @@ namespace A06_WebServer
             string[] result = null;
             int port = 0;
             string ipAddress = null;
-            
 
             //Check to make sure arguments were inputted.
-            if (args.Length == 0)
+            if (args.Length != 3)
             {
-                Console.WriteLine("You need to enter things homie."); //Probably need to remove or replace with a logger call
-                return 1;
+                //User did not supply sufficient, or supplied too many, arguments.
+                Console.WriteLine("[ERROR] Non-Recoverable Error. Insufficient or too many command-line arguments provided.");
+                Console.ReadKey();
+                return 1; //Exit
             }
 
             //We're going to step through each of the command line arguments received.

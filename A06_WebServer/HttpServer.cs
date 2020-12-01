@@ -118,7 +118,10 @@ namespace A06_WebServer
                         if (buffer.IndexOf("GET") == -1)
                         {
                             statusCode = 405;
-                            SendResponse(statusCode, "<h2>405: Method Not Allowed</h2>");
+                            string error = "<h2>405: Method Not Allowed</h2>";
+                            Byte[] errorBytes = Encoding.UTF8.GetBytes(error);
+                            int messageLength = error.Length;
+                            errorResponse = new Response(1.1, statusCode, "text/html", messageLength, errorBytes);
                             clientSocket.Close();
                             break;
                         }
@@ -132,6 +135,16 @@ namespace A06_WebServer
 
                         //Grab the 8 characters comprising the HTTP version
                         version = buffer.Substring(index, 8);
+                        if (version != "HTTP/1.1")
+                        {
+                            statusCode = 505;
+                            string error = "<h2>505: HTTP Version Not Supported</h2>";
+                            Byte[] errorBytes = Encoding.UTF8.GetBytes(error);
+                            int messageLength = error.Length;
+                            errorResponse = new Response(1.1, statusCode, "text/html", messageLength, errorBytes);
+                            clientSocket.Close();
+                            break;
+                        }
 
                         //Will grab a substring from beginning to just before position of the HTTP version
                         target = buffer.Substring(0, (index - 1));
