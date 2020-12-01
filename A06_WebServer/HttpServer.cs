@@ -1,8 +1,12 @@
-﻿/* FILE: HttpServer.cs
- * DATE: Nov 2020
- * AUTHORS: Joel Smith & Ian Ewing
- * PROJECT: WDD A06 Web Server
- * DESCRIPTION: main server logic and functionality here
+﻿/* 
+ * FILE:            HttpServer.cs
+ * PROJECT:         WDD A06 Web Server
+ * AUTHORS:         Joel Smith & Ian Ewing
+ * DATE:            Nov 18, 2020
+ * DESCRIPTION:     This class contains the main server logic and functionality. This is 
+ *                  where the single threaded server is started. It is responsible for the 
+ *                  parsing of client requests, retrieval of requested data, as well as the 
+ *                  creation and transmission of our response. Its the workhorse
  */
 
 using System;
@@ -73,10 +77,15 @@ namespace A06_WebServer
             }
         }
 
+
+
         /*
-         * Listen for the browser request, ensure it meets our needs, 
-         * pass to ParseRequest for heavy lifting
-         * 
+         * Method:          GetRequest
+         * Description:     Listen for the browser request, ensure it meets our needs by  
+         *                  seperating the request into substrings before it passes to 
+         *                  ParseRequest for heavy lifting
+         * Parameter:       None
+         * Returns:         Void
          */
         private void GetRequest()
         {
@@ -153,11 +162,16 @@ namespace A06_WebServer
             }
         }
 
-        /// <summary>
-        /// takes a request object and turns it into a response by transferring relevant metadata,
-        /// measures the length and takes the bytes
-        /// </summary>
-        /// <param name="inputReq">request object to turn into response</param>
+
+
+        /*
+         * Method:          ParseRequest
+         * Description:     Takes a request object filled by GetRequest and creates the corresponding
+         *                  response object by transferring relevant metadata and processing the requested
+         *                  files into bytes. This information is stored in a Response object.
+         * Parameters:      Request inputReq - Request object representing the request sent to the server by client
+         * Returns:         Void
+         */
         public void ParseRequest(Request inputReq)
         {
             //declare our return
@@ -189,8 +203,8 @@ namespace A06_WebServer
                 errorResponse = new Response(1.1, statusCode, "text/html", messageLength, bytes);
                 SendResponse(errorResponse);
             }
-            else if (mimeType.Contains("text") || mimeType.Contains("image")) //Filter here if contains text
-            {
+            else if (mimeType.Contains("text/html") || mimeType.Contains("text/plain") || mimeType.Contains("image/jpeg") || mimeType.Contains("image/gif"))
+            { //Filter into here if our media type is one accepted by our server
                 //get the length
                 FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                 messageLength = (int)fs.Length;
@@ -228,10 +242,18 @@ namespace A06_WebServer
         }
 
 
-        /// <summary>
-        /// working sendresponse
-        /// </summary>
-        /// <param name="serverSend">the response to send back</param>
+
+        /*
+         * Method:          SendResponse
+         * Description:     Takes in a response object populated by ParseRequest. This method takes
+         *                  the metadata, creates a header then transmits both the header and file 
+         *                  in byte form to the client. The method checks the status code before creating 
+         *                  the proper log entry based off success state. Finishes by closing the socket 
+         *                  connection
+         * Paramters:       Response serverSend - Response object containing the information needed to 
+         *                  send a response to the client.
+         * Returns:         Void
+         */
         public void SendResponse(Response serverSend)
         {
             //Grab local copies of information needed to send our response
@@ -240,13 +262,15 @@ namespace A06_WebServer
             string contentType = serverSend.headers["Content-Type"];
             int statusCode = serverSend.startLine.Code;
             
-            string dateString = DateTime.Now.ToString("ddd, dd MMM yyyy H:mm:ss K");
+            //Format our datetime string to display day of the week, 24 hour clock, and timezone
+            string dateString = DateTime.Now.ToString("ddd, dd MMM yyyy H:mm:ss %K");
 
             //Send just the header to the client. This allows us to send back negative status codes too.
             string header = $"HTTP/{version} {statusCode}\r\n" + $"Date: {dateString}\r\n" + $"Content-Type: {contentType}\r\n" + $"Content-Length: {contentLength}\r\n\r\n";
             Byte[] msg = Encoding.UTF8.GetBytes(header);
+            
+            //Send our header
             clientSocket.Send(msg);
-
             //Send the actual contents of the webpage requested
             clientSocket.Send(serverSend.bodyBytes);
 
@@ -258,19 +282,20 @@ namespace A06_WebServer
             }
             else
             {
-                //Remove our carriage returns/new lines so we can log all in one nice tidy line
-                header = header.Replace("\n", " ");
-                header = header.Replace("\r", "");
-                serverLog.Log($"[RESPONSE] {header}");
+
+                serverLog.Log($"[RESPONSE] Content-Type: {contentType} Content-Length: {contentLength} Server: J&I Servers'R'Us Date: {dateString}");
             }
             clientSocket.Close(); //needed to have repeated requests
         }
 
 
-
-        /// <summary>
-        /// clears up server to exit
-        /// </summary>
+        
+        /*
+         * Method:          Close
+         * Description:     Handles safe shutdown of the server
+         * Parameters:      None
+         * Returns:         Void
+         */
         public void Close()
         {
             Run.Go = false;
@@ -279,10 +304,6 @@ namespace A06_WebServer
 
             serverLog.Log("[SERVER STOPPED]");
         }
-
-
-
-        
 
     }
 }

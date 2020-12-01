@@ -1,9 +1,11 @@
 ﻿/*
-* FILENAME: Logger.cs
-* PROJECT: WDDA06 Server
-* BY: Joel Smith
-* DATE: Nov 17 2020
-* DESCRIPTION: logger for http server
+* FILE:         Logger.cs
+* PROJECT:      WDDA06 Server
+* AUTHORS:      Joel Smith & Ian Ewing
+* DATE:         Nov 17 2020
+* DESCRIPTION:  This class handles all logging for our server functionality
+*               It allows for a variety of message strings to be logged with 
+*               a consistent date format.
 */
 
 
@@ -32,7 +34,7 @@ namespace A06_WebServer
         }
 
         /// <summary>
-        /// Logger functionality to be used for HttpServer
+        /// Logger functionality to be used by HttpServer
         /// </summary>
         public class HttpServerLogger : LoggerCore
         {
@@ -81,7 +83,7 @@ namespace A06_WebServer
 
 
             /// <summary>
-            /// safely puts the message/log line into the file
+            /// safely writes the message/log line into the file
             /// </summary>
             /// <param name="message"></param>
             public override void Log(string message)
