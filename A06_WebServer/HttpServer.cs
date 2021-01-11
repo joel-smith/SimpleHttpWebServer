@@ -163,10 +163,10 @@ namespace A06_WebServer
                         ParseRequest(browserRequest);
                     }
                 }
-                catch (SocketException ex)
+                catch (SocketException)
                 {
                     Thread.Sleep(5);
-                    serverLog.Log($"Ignore this");
+                    serverLog.Log($"Ignore this, had to sleep to remove SocketException");
                 }
                 catch (Exception e)
                 {
