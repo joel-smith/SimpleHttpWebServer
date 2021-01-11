@@ -1,8 +1,12 @@
-# A06_WebServer
-WDD A06 - a simple, single threaded, web server
+# SimpleHttpWebServer
+ This is a simple, single threaded, web server made in C#.
 
+Command line takes 3 parameters to start it running
 
-Creating a basic web server
+-webRoot: folder that contains server files/website data
+-webI: IP address that server will run on 
+-webPort: port the server will run on.
 
-HTTP Status Codes
-https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_client_errors
+example command would be:
+
+myOwnWebServer - webRoot=C:\server - webIP=192.168.100.18 - webPort=5300
