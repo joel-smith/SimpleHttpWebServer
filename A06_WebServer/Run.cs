@@ -23,7 +23,6 @@ namespace A06_WebServer
         public static volatile bool Go = true; //to be used for thread control
         public const int numArgs = 3; //number of command line arguments req'd
 
-
         static int Main(string[] args)
         {
             //Variables that will be used in Main
