@@ -1,6 +1,6 @@
 ﻿/*
 * FILE:         Run.cs
-* PROJECT:      A06 Webserver
+* PROJECT:      SimpleHttpWebServer
 * AUTHORS:      Joel Smith & Ian Ewing
 * DATE:         November 17, 2020
 * DESCRIPTION:  This contains the actual runtime code our our single
@@ -20,7 +20,9 @@ namespace A06_WebServer
 {
     class Run
     {
-        public static volatile bool Go = true;
+        public static volatile bool Go = true; //to be used for thread control
+        public const int numArgs = 3; //number of command line arguments req'd
+
 
         static int Main(string[] args)
         {
@@ -31,7 +33,7 @@ namespace A06_WebServer
             string ipAddress = null;
 
             //Check to make sure arguments were inputted.
-            if (args.Length != 3)
+            if (args.Length != numArgs)
             {
                 //User did not supply sufficient, or supplied too many, arguments.
                 Console.WriteLine("[ERROR] Non-Recoverable Error. Insufficient or too many command-line arguments provided.");

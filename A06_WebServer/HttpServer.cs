@@ -1,6 +1,6 @@
 ﻿/* 
  * FILE:            HttpServer.cs
- * PROJECT:         WDD A06 Web Server
+ * PROJECT:         ASimpleHttpServer
  * AUTHORS:         Joel Smith & Ian Ewing
  * DATE:            Nov 18, 2020
  * DESCRIPTION:     This class contains the main server logic and functionality. This is 

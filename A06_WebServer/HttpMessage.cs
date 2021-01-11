@@ -1,6 +1,6 @@
 ﻿/* 
  * FILE:            HttpMessage.cs
- * PROJECT:         WDD A06 Web Server
+ * PROJECT:         SimpleHttpWebServer
  * AUTHORS:         Joel Smith & Ian Ewing
  * DATE:            Nov 17, 2020
  * DESCRIPTION:     This class contains the base and abstract HttpMessage class.

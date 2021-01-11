@@ -1,6 +1,6 @@
 ﻿/*
 * FILE:         Logger.cs
-* PROJECT:      WDDA06 Server
+* PROJECT:      SimpleHttpWebServer
 * AUTHORS:      Joel Smith & Ian Ewing
 * DATE:         Nov 17 2020
 * DESCRIPTION:  This class handles all logging for our server functionality
